@@ -1,234 +1,176 @@
+import 'dart:async';
 
-// import 'dart:ui';
-// import 'package:dana_bozzetto/core/notifiers/button_status_notifier.dart';
-// import 'package:dana_bozzetto/core/notifiers/snackbar_notifier.dart';
-// import 'package:dana_bozzetto/moduls/auth/controller/verify_email_controller.dart';
-// import 'package:dana_bozzetto/moduls/auth/presentation/screen/reset_password-screen.dart';
-// import 'package:flutter/material.dart';
-// import 'package:pinput/pinput.dart';
+import 'package:flutter/material.dart';
 
-// class OtpVerifyScreen extends StatefulWidget {
-//   final String contact;
+import 'package:flutter_bighustle/core/constants/app_routes.dart';
+import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 
-//   const OtpVerifyScreen({
-//     super.key,
-//     required this.contact,
-//   });
+class OtpVerifyScreen extends StatefulWidget {
+  final String contact;
 
-//   @override
-//   State<OtpVerifyScreen> createState() => _OtpVerifyScreenState();
-// }
+  const OtpVerifyScreen({
+    super.key,
+    required this.contact,
+  });
 
-// class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
-//   late final VerifyEmailController verifyController;
-//   late final SnackbarNotifier snackbarNotifier;
-//   int resendTime = 45;
+  @override
+  State<OtpVerifyScreen> createState() => _OtpVerifyScreenState();
+}
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     snackbarNotifier = SnackbarNotifier(context: context);
-//     verifyController = VerifyEmailController(snackbarNotifier);
-//     verifyController.contact = widget.contact;
-//     startTimer();
-//   }
+class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
+  Timer? _timer;
+  int _resendTime = 45;
+  String _otp = '';
+  bool _showOtpError = false;
 
-//   void startTimer() {
-//     Future.doWhile(() async {
-//       if (resendTime == 0) return false;
-//       await Future.delayed(const Duration(seconds: 1));
-//       setState(() => resendTime--);
-//       return true;
-//     });
-//   }
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
 
-//   @override
-//   void dispose() {
-//     verifyController.dispose();
-//     super.dispose();
-//   }
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final listenable = Listenable.merge(
-//       [verifyController, verifyController.processStatusNotifier],
-//     );
+  void _startTimer() {
+    _timer?.cancel();
+    _resendTime = 45;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_resendTime == 0) {
+        timer.cancel();
+      } else {
+        setState(() => _resendTime--);
+      }
+    });
+  }
 
-//     /// OTP box style
-//     final defaultPinTheme = PinTheme(
-//       width: 50,
-//       height: 50,
-//       textStyle: const TextStyle(
-//         fontSize: 22,
-//         color: Colors.white,
-//         fontWeight: FontWeight.w600,
-//       ),
-//       decoration: BoxDecoration(
-//         color: Colors.black.withOpacity(.35),
-//         borderRadius: BorderRadius.circular(40),
-//         border: Border.all(color: Colors.white24),
-//       ),
-//     );
+  bool _isOtpValid() => _otp.length >= 6;
 
-//     return Scaffold(
-//       backgroundColor: Colors.black,
-//       extendBodyBehindAppBar: true,
+  Future<void> _submit() async {
+    if (!_isOtpValid()) {
+      setState(() => _showOtpError = true);
+      await showAuthStatusDialog(
+        context,
+        success: false,
+        message: 'Account not Verified!',
+      );
+      return;
+    }
 
-//       appBar: AppBar(
-//         backgroundColor: Colors.transparent,
-//         elevation: 0,
-//         foregroundColor: Colors.white,
-//         title: const Text(
-//           "Enter Security Code",
-//           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-//         ),
-//       ),
+    setState(() => _showOtpError = false);
 
-//       body: Stack(
-//         children: [
-//           /// Background image
-//           Container(
-//             width: double.infinity,
-//             height: double.infinity,
-//             decoration: const BoxDecoration(
-//               image: DecorationImage(
-//                 image: AssetImage('assets/image/ab.png'),
-//                 fit: BoxFit.cover,
-//               ),
-//             ),
-//           ),
+    await showAuthStatusDialog(
+      context,
+      success: true,
+      message: 'Verified successfully.',
+    );
+    if (!mounted) {
+      return;
+    }
+    Navigator.pushNamed(
+      context,
+      AppRoutes.resetPassword,
+      arguments: widget.contact,
+    );
+  }
 
-//           /// Glassmorphic Card
-//           Center(
-//             child: Padding(
-//               padding: const EdgeInsets.symmetric(horizontal: 24),
-//               child: ClipRRect(
-//                 borderRadius: BorderRadius.circular(16),
-//                 child: BackdropFilter(
-//                   filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-//                   child: Container(
-//                     width: double.infinity,
-//                     padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-//                     decoration: BoxDecoration(
-//                       color: Colors.white.withOpacity(0.12),
-//                       borderRadius: BorderRadius.circular(16),
-//                       border: Border.all(
-//                         color: Colors.white.withOpacity(0.25),
-//                         width: 1.2,
-//                       ),
-//                     ),
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
 
-//                     child: Column(
-//                       mainAxisSize: MainAxisSize.min,
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-
-//                       children: [
-//                         /// Subtitle
-//                         const Text(
-//                           "Please check your Email for a message with your code. "
-//                           "Your code is 6 numbers long.",
-//                           style: TextStyle(color: Colors.white70, fontSize: 14),
-//                         ),
-
-//                         const SizedBox(height: 20),
-
-//                         /// OTP Input
-//                         Center(
-//                           child: Pinput(
-//                             length: 6,
-//                             obscureText: true,
-//                             defaultPinTheme: defaultPinTheme,
-//                             onChanged: (value) => verifyController.otp = value,
-//                             onCompleted: (value) =>
-//                                 verifyController.otp = value,
-//                           ),
-//                         ),
-
-//                         const SizedBox(height: 16),
-
-//                         /// Timer
-//                         Center(
-//                           child: Text(
-//                             "Resend code in ${resendTime}s",
-//                             style: const TextStyle(
-//                               color: Colors.white70,
-//                               fontSize: 14,
-//                             ),
-//                           ),
-//                         ),
-
-//                         const SizedBox(height: 30),
-
-//                         /// Continue button
-//                         AnimatedBuilder(
-//                           animation: listenable,
-//                           builder: (context, child) {
-//                             final isLoading = verifyController
-//                                 .processStatusNotifier
-//                                 .status is LoadingStatus;
-//                             final canSubmit =
-//                                 verifyController.canVerify() && !isLoading;
-//                             return SizedBox(
-//                               width: double.infinity,
-//                               height: 56,
-//                               child: ElevatedButton(
-//                                 onPressed: canSubmit
-//                                     ? () async {
-//                                         await verifyController.verifyEmail(
-//                                           onSuccess: () {
-//                                             if (!mounted) return;
-//                                             Navigator.push(
-//                                               context,
-//                                               MaterialPageRoute(
-//                                                 builder: (context) =>
-//                                                     ResetPasswordscreen(
-//                                                   email: widget.contact,
-//                                                 ),
-//                                               ),
-//                                             );
-//                                           },
-//                                         );
-//                                       }
-//                                     : null,
-//                                 style: ElevatedButton.styleFrom(
-//                                   backgroundColor: const Color(0xFF01676C),
-//                                   foregroundColor: Colors.white,
-//                                   shape: RoundedRectangleBorder(
-//                                     borderRadius: BorderRadius.circular(16),
-//                                   ),
-//                                 ),
-//                                 child: isLoading
-//                                     ? const SizedBox(
-//                                         width: 22,
-//                                         height: 22,
-//                                         child: CircularProgressIndicator(
-//                                           strokeWidth: 2,
-//                                           valueColor:
-//                                               AlwaysStoppedAnimation<Color>(
-//                                             Colors.white,
-//                                           ),
-//                                         ),
-//                                       )
-//                                     : const Text(
-//                                         "Continue",
-//                                         style: TextStyle(
-//                                           fontSize: 16,
-//                                           fontWeight: FontWeight.w600,
-//                                         ),
-//                                       ),
-//                               ),
-//                             );
-//                           },
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+    return Scaffold(
+      backgroundColor: AuthColors.background,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            horizontal: size.width * 0.08,
+            vertical: size.height * 0.04,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: size.height * 0.04),
+              Center(
+                child: AuthLogo(fontSize: size.width * 0.16),
+              ),
+              SizedBox(height: size.height * 0.05),
+              Text(
+                'Enter OTP',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: (size.width * 0.075).clamp(22.0, 30.0),
+                  fontWeight: FontWeight.w700,
+                  color: AuthColors.textDark,
+                ),
+              ),
+              SizedBox(height: size.height * 0.015),
+              Text(
+                'We have shared a code to your registered email address\n${widget.contact}',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: (size.width * 0.045).clamp(14.0, 18.0),
+                  color: AuthColors.textMuted,
+                  height: 1.4,
+                ),
+              ),
+              SizedBox(height: size.height * 0.04),
+              AuthOtpFields(
+                size: size,
+                onChanged: (value) => _otp = value,
+              ),
+              if (_showOtpError) ...[
+                SizedBox(height: size.height * 0.015),
+                Text(
+                  'Enter the 6-digit code.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AuthColors.dialogError,
+                    fontSize: (size.width * 0.04).clamp(12.0, 16.0),
+                  ),
+                ),
+              ],
+              SizedBox(height: size.height * 0.03),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don't get a code?",
+                    style: TextStyle(
+                      color: AuthColors.textMuted,
+                      fontSize: (size.width * 0.04).clamp(12.0, 16.0),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  TextButton(
+                    onPressed: _resendTime == 0 ? _startTimer : null,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AuthColors.primary,
+                    ),
+                    child: Text(
+                      _resendTime == 0
+                          ? 'Resend'
+                          : 'Resend in ${_resendTime}s',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.04).clamp(12.0, 16.0),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: size.height * 0.08),
+              AuthPrimaryButton(
+                size: size,
+                label: 'Verify',
+                onPressed: _submit,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
