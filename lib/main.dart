@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bighustle/moduls/profile/presentation/screen/profile_screen.dart';
 
+import 'package:flutter_bighustle/core/constants/app_routes.dart';
+import 'package:flutter_bighustle/moduls/auth/presentation/screen/email_verify_screen.dart';
+import 'package:flutter_bighustle/moduls/auth/presentation/screen/forget_password.dart';
+import 'package:flutter_bighustle/moduls/auth/presentation/screen/login_screen.dart';
+import 'package:flutter_bighustle/moduls/auth/presentation/screen/otp_verify_screen.dart';
+import 'package:flutter_bighustle/moduls/auth/presentation/screen/reset_password-screen.dart';
+import 'package:flutter_bighustle/moduls/auth/presentation/screen/splash_screen.dart';
+import 'package:flutter_bighustle/moduls/auth/presentation/screen/signup_screen.dart';
+import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
+import 'package:flutter_bighustle/moduls/home/screen/bottom_nav_screen.dart';
+import 'package:flutter_bighustle/moduls/home/screen/teen_drivers_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -8,31 +20,56 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Flutter Bighustle',
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        scaffoldBackgroundColor: AuthColors.background,
+        colorScheme: ColorScheme.fromSeed(seedColor: AuthColors.primary),
       ),
-      home: ProfileScreen(),
+      initialRoute: AppRoutes.splash,
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case AppRoutes.splash:
+            return MaterialPageRoute(builder: (_) => const SplashScreen());
+          case AppRoutes.login:
+            return MaterialPageRoute(builder: (_) => const LoginScreen());
+          case AppRoutes.signup:
+            return MaterialPageRoute(builder: (_) => const SignupScreen());
+          case AppRoutes.forgetPassword:
+            return MaterialPageRoute(builder: (_) => const ForgetPassword());
+          case AppRoutes.otpVerify:
+            final contact = settings.arguments is String
+                ? settings.arguments as String
+                : '';
+            return MaterialPageRoute(
+              builder: (_) => OtpVerifyScreen(contact: contact),
+            );
+          case AppRoutes.emailVerify:
+            final email = settings.arguments is String
+                ? settings.arguments as String
+                : '';
+            return MaterialPageRoute(
+              builder: (_) => EmailVerifyScreen(email: email),
+            );
+          case AppRoutes.resetPassword:
+            final email = settings.arguments is String
+                ? settings.arguments as String
+                : null;
+            return MaterialPageRoute(
+              builder: (_) => ResetPasswordscreen(email: email),
+            );
+          case AppRoutes.home:
+            return MaterialPageRoute(builder: (_) => const BottomNavScreen());
+          case AppRoutes.teenDrivers:
+            return MaterialPageRoute(builder: (_) => const TeenDriversScreen());
+          default:
+            return MaterialPageRoute(builder: (_) => const LoginScreen());
+        }
+      },
     );
   }
 }
