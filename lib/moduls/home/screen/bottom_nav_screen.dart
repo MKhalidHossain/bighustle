@@ -20,6 +20,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     final pages = [
       const HomeScreen(),
       const LicenseScreen(),
+      const _PlaceholderTab(title: 'License'),
       const TicketScreen(),
       const ProfileScreen(),
     ];
