@@ -6,9 +6,9 @@ class TeenDriversScreen extends StatelessWidget {
   const TeenDriversScreen({super.key});
 
   void _showMessage(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -47,7 +47,7 @@ class TeenDriversScreen extends StatelessWidget {
               Text(
                 'Good Morning, John! 👋',
                 style: TextStyle(
-                  fontSize: (size.width * 0.055).clamp(18.0, 24.0),
+                  fontSize: (size.width * 0.02).clamp(18.0, 24.0),
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF222222),
                 ),
@@ -76,8 +76,9 @@ class TeenDriversScreen extends StatelessWidget {
                               value: 0.4,
                               minHeight: 8,
                               backgroundColor: const Color(0xFFE0E0E0),
-                              valueColor:
-                                  const AlwaysStoppedAnimation(primaryColor),
+                              valueColor: const AlwaysStoppedAnimation(
+                                primaryColor,
+                              ),
                             ),
                           ),
                         ),
@@ -122,7 +123,10 @@ class TeenDriversScreen extends StatelessWidget {
                       height: (size.height * 0.065).clamp(44.0, 54.0),
                       child: ElevatedButton(
                         onPressed: () =>
-                            _showMessage(context, 'Continue Learning'),
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.learningCenter,
+                            ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryColor,
                           foregroundColor: Colors.white,
@@ -133,8 +137,7 @@ class TeenDriversScreen extends StatelessWidget {
                         child: Text(
                           'Continue Learning',
                           style: TextStyle(
-                            fontSize: (size.width * 0.045)
-                                .clamp(14.0, 18.0),
+                            fontSize: (size.width * 0.045).clamp(14.0, 18.0),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -160,20 +163,11 @@ class TeenDriversScreen extends StatelessWidget {
                     SizedBox(height: size.height * 0.02),
                     Row(
                       children: [
-                        _StatTile(
-                          size: size,
-                          label: '13 Lessons',
-                        ),
+                        _StatTile(size: size, label: '13 Lessons'),
                         SizedBox(width: size.width * 0.03),
-                        _StatTile(
-                          size: size,
-                          label: '28 Hours',
-                        ),
+                        _StatTile(size: size, label: '28 Hours'),
                         SizedBox(width: size.width * 0.03),
-                        _StatTile(
-                          size: size,
-                          label: '85% Score',
-                        ),
+                        _StatTile(size: size, label: '85% Score'),
                       ],
                     ),
                   ],
@@ -220,8 +214,7 @@ class TeenDriversScreen extends StatelessWidget {
                         label: Text(
                           'Start',
                           style: TextStyle(
-                            fontSize: (size.width * 0.045)
-                                .clamp(14.0, 18.0),
+                            fontSize: (size.width * 0.045).clamp(14.0, 18.0),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -244,13 +237,16 @@ class TeenDriversScreen extends StatelessWidget {
                   Text(
                     'Recent posts',
                     style: TextStyle(
-                      fontSize: (size.width * 0.05).clamp(16.0, 22.0),
+                      fontSize: (size.width * 0.04).clamp(16.0, 22.0),
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFF222222),
                     ),
                   ),
                   TextButton(
-                    onPressed: () => _showMessage(context, 'See more'),
+                    onPressed: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.teenDriverPosts,
+                    ),
                     child: Text(
                       'See more',
                       style: TextStyle(
@@ -268,24 +264,12 @@ class TeenDriversScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        height: size.height * 0.22,
+                      borderRadius: BorderRadius.circular(4),
+                      child: Image.asset(
+                        'assets/images/Frame 2147228840.png',
                         width: double.infinity,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFFB0C7FF), Color(0xFF6C8EF6)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.directions_car,
-                            color: Colors.white,
-                            size: 48,
-                          ),
-                        ),
+                        height: size.height * 0.2,
+                        fit: BoxFit.cover,
                       ),
                     ),
                     SizedBox(height: size.height * 0.015),
@@ -317,10 +301,7 @@ class TeenDriversScreen extends StatelessWidget {
                     if (Navigator.canPop(context)) {
                       Navigator.pop(context);
                     } else {
-                      Navigator.pushReplacementNamed(
-                        context,
-                        AppRoutes.home,
-                      );
+                      Navigator.pushReplacementNamed(context, AppRoutes.home);
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -352,10 +333,7 @@ class _CardContainer extends StatelessWidget {
   final Size size;
   final Widget child;
 
-  const _CardContainer({
-    required this.size,
-    required this.child,
-  });
+  const _CardContainer({required this.size, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -367,7 +345,7 @@ class _CardContainer extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(4),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -385,21 +363,16 @@ class _StatTile extends StatelessWidget {
   final Size size;
   final String label;
 
-  const _StatTile({
-    required this.size,
-    required this.label,
-  });
+  const _StatTile({required this.size, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: size.height * 0.02,
-        ),
+        padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
         decoration: BoxDecoration(
           color: const Color(0xFFE9EEFF),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(4),
         ),
         child: Text(
           label,

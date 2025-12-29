@@ -34,20 +34,28 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,
         type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             label: 'Home',
           ),
+
+          /// 🔥 IMAGE ICON USED HERE (ONLY CHANGE)
           BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_outlined),
+            icon: Image.asset(
+              'assets/images/clarity_license-outline-badged.png',
+              width: 24,
+              height: 24,
+              color: _selectedIndex == 1 ? Colors.white : Colors.white70,
+            ),
             label: 'License',
           ),
-          BottomNavigationBarItem(
+
+          const BottomNavigationBarItem(
             icon: Icon(Icons.confirmation_number_outlined),
             label: 'Ticket',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             label: 'Profile',
           ),
@@ -60,9 +68,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
 class _PlaceholderTab extends StatelessWidget {
   final String title;
 
-  const _PlaceholderTab({
-    required this.title,
-  });
+  const _PlaceholderTab({required this.title});
 
   @override
   Widget build(BuildContext context) {
