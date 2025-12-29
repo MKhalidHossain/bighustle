@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bighustle/moduls/profile/presentation/screen/profile_screen.dart';
-
 import 'package:flutter_bighustle/core/constants/app_routes.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/screen/email_verify_screen.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/screen/forget_password.dart';
@@ -12,6 +10,11 @@ import 'package:flutter_bighustle/moduls/auth/presentation/screen/signup_screen.
 import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 import 'package:flutter_bighustle/moduls/home/screen/bottom_nav_screen.dart';
 import 'package:flutter_bighustle/moduls/home/screen/teen_drivers_screen.dart';
+import 'package:flutter_bighustle/moduls/ticket/presentation/screen/notification_screen.dart';
+import 'package:flutter_bighustle/moduls/ticket/presentation/screen/plan_pricing_details_screen.dart';
+import 'package:flutter_bighustle/moduls/ticket/presentation/screen/plan_pricing_screen.dart';
+import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_details_screen.dart';
+import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -66,6 +69,20 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const BottomNavScreen());
           case AppRoutes.teenDrivers:
             return MaterialPageRoute(builder: (_) => const TeenDriversScreen());
+          case AppRoutes.ticket:
+            return MaterialPageRoute(builder: (_) => const TicketScreen());
+          case AppRoutes.ticketDetails:
+            return MaterialPageRoute(builder: (_) => const TicketDetailsScreen());
+          case AppRoutes.ticketNotifications:
+            return MaterialPageRoute(
+              builder: (_) => const TicketNotificationScreen(),
+            );
+          case AppRoutes.planPricing:
+            return MaterialPageRoute(builder: (_) => const PlanPricingScreen());
+          case AppRoutes.planPricingDetails:
+            return MaterialPageRoute(
+              builder: (_) => const PlanPricingDetailsScreen(),
+            );
           default:
             return MaterialPageRoute(builder: (_) => const LoginScreen());
         }
