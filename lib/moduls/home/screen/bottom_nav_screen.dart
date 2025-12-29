@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bighustle/moduls/profile/presentation/screen/profile_screen.dart';
 
 import 'home_screen.dart';
 
@@ -18,7 +19,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       const HomeScreen(),
       const _PlaceholderTab(title: 'License'),
       const _PlaceholderTab(title: 'Ticket'),
-      const _PlaceholderTab(title: 'Profile'),
+      const ProfileScreen(),
     ];
 
     return Scaffold(

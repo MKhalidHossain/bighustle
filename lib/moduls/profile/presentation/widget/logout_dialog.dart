@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bighustle/moduls/auth/presentation/screen/login_screen.dart';
 
 const Color _primaryBlue = Color(0xFF2D6BFF);
 
@@ -42,7 +43,7 @@ void showLogoutDialog(BuildContext context) {
                   ),
                   backgroundColor: const Color(0xFFFFF2F2),
                 ),
-                onPressed: () => Navigator.pop(dialogContext),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
                 child: const Text('Log Out'),
               ),
             ),
