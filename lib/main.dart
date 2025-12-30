@@ -110,8 +110,8 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (_) => const TicketNotificationScreen(),
             );
-          case AppRoutes.planPricing:
-            return MaterialPageRoute(builder: (_) => const PlanPricingScreen());
+          // case AppRoutes.planPricing:
+          //   return MaterialPageRoute(builder: (_) => const PlanPricingScreen());
           case AppRoutes.planPricingDetails:
             return MaterialPageRoute(
               builder: (_) => const PlanPricingDetailsScreen(),
