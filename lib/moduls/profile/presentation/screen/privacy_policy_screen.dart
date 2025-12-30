@@ -18,7 +18,11 @@ class PrivacyPolicyScreen extends StatelessWidget {
         centerTitle: true,
         title: const Text(
           'Privacy Policy',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
         ),
       ),
       body: ListView(

@@ -18,14 +18,14 @@ class PolicySection extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 14),
       child: RichText(
         text: TextSpan(
-          style: const TextStyle(color: Colors.black54, fontSize: 13),
+          style: const TextStyle(color: Colors.black54, fontSize: 15),
           children: [
             TextSpan(
               text: '$number. $title\n',
               style: const TextStyle(
                 color: Colors.black87,
                 fontWeight: FontWeight.w600,
-                fontSize: 13,
+                fontSize: 15,
               ),
             ),
             TextSpan(text: body),

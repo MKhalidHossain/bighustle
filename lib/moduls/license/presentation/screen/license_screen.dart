@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../../core/constants/app_routes.dart';
 import '../controller/license_info_controller.dart';
 import '../widget/license_alert_item.dart';

@@ -31,7 +31,7 @@ class TicketDetailsScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFF4C8DFF), width: 1.2),
+            // border: Border.all(color: const Color(0xFF4C8DFF), width: 1.2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
