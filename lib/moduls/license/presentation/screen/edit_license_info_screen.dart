@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../controller/license_info_controller.dart';
-import '../widget/license_edit_field.dart';
-import '../widget/license_status_card.dart';
 
 class EditLicenseInfoScreen extends StatefulWidget {
   const EditLicenseInfoScreen({super.key});
@@ -12,176 +11,373 @@ class EditLicenseInfoScreen extends StatefulWidget {
 }
 
 class _EditLicenseInfoScreenState extends State<EditLicenseInfoScreen> {
-  late final TextEditingController _nameController;
-  late final TextEditingController _licenseNoController;
-  late final TextEditingController _stateController;
-  late final TextEditingController _dobController;
-  late final TextEditingController _expireController;
+  static const Color _background = Color(0xFFF2F2F2);
+  static const Color _primaryBlue = Color(0xFF3F76F6);
+  static const Color _borderColor = Color(0xFFBDBDBD);
+  static const Color _textDark = Color(0xFF222222);
+  static const Color _textMuted = Color(0xFF8B8B8B);
+
+  final ImagePicker _picker = ImagePicker();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _licenseNoController = TextEditingController();
+  final TextEditingController _expirationController = TextEditingController();
+  final TextEditingController _userPhotoController = TextEditingController();
+  final TextEditingController _licensePhotoController = TextEditingController();
+
+  final List<String> _states = const [
+    'Alabama',
+    'Alaska',
+    'Arizona',
+    'California',
+    'Florida',
+    'New York',
+    'Texas',
+  ];
+  final List<String> _licenseClasses = const [
+    'Class A',
+    'Class B',
+    'Class C',
+    'Class D',
+  ];
+
+  String? _selectedState;
+  String? _selectedClass;
 
   @override
   void initState() {
     super.initState();
     final info = LicenseInfoController.notifier.value;
-    _nameController = TextEditingController(text: info.name);
-    _licenseNoController = TextEditingController(text: info.licenseNo);
-    _stateController = TextEditingController(text: info.state);
-    _dobController = TextEditingController(text: info.dateOfBirth);
-    _expireController = TextEditingController(text: info.expireDate);
+    _nameController.text = info.name;
+    _licenseNoController.text = info.licenseNo;
+    _expirationController.text = info.expireDate;
+    _selectedState = _states.contains(info.state) ? info.state : null;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _licenseNoController.dispose();
-    _stateController.dispose();
-    _dobController.dispose();
-    _expireController.dispose();
+    _expirationController.dispose();
+    _userPhotoController.dispose();
+    _licensePhotoController.dispose();
     super.dispose();
   }
 
-  void _saveAndClose() {
+  Future<void> _pickUserPhoto() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (pickedFile == null) {
+      return;
+    }
+    setState(() => _userPhotoController.text = pickedFile.name);
+  }
+
+  Future<void> _pickLicensePhoto() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (pickedFile == null) {
+      return;
+    }
+    setState(() => _licensePhotoController.text = pickedFile.name);
+  }
+
+  Future<void> _selectExpirationDate() async {
+    final now = DateTime.now();
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: DateTime(now.year - 1),
+      lastDate: DateTime(now.year + 15),
+    );
+    if (selected == null) {
+      return;
+    }
+    final month = selected.month.toString().padLeft(2, '0');
+    final day = selected.day.toString().padLeft(2, '0');
+    _expirationController.text = '$month/$day/${selected.year}';
+  }
+
+  void _submit() {
+    final name = _nameController.text.trim();
+    final licenseNo = _licenseNoController.text.trim();
+    final expiration = _expirationController.text.trim();
+    final userPhoto = _userPhotoController.text.trim();
+    final licensePhoto = _licensePhotoController.text.trim();
+    if (name.isEmpty ||
+        licenseNo.isEmpty ||
+        expiration.isEmpty ||
+        _selectedState == null ||
+        _selectedClass == null ||
+        userPhoto.isEmpty ||
+        licensePhoto.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please complete all fields.')),
+      );
+      return;
+    }
+
     final info = LicenseInfoController.notifier.value;
     LicenseInfoController.update(
       info.copyWith(
-        name: _nameController.text.trim(),
-        licenseNo: _licenseNoController.text.trim(),
-        state: _stateController.text.trim(),
-        dateOfBirth: _dobController.text.trim(),
-        expireDate: _expireController.text.trim(),
+        name: name,
+        licenseNo: licenseNo,
+        state: _selectedState,
+        expireDate: expiration,
       ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('License info submitted.')),
     );
     Navigator.of(context).pop();
   }
 
+  InputDecoration _inputDecoration(String hintText) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(color: _textMuted),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: _borderColor),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: _borderColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: _primaryBlue, width: 1.4),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final info = LicenseInfoController.notifier.value;
+    final size = MediaQuery.of(context).size;
+    final viewInsets = MediaQuery.of(context).viewInsets;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF2F2F2),
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Edit License Info',
-          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        children: [
-          LicenseStatusCard(
-            status: info.status,
-            validity: info.validity,
-            expiryDate: info.expiryShort,
-          ),
-          const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: SizedBox(
-              height: 30,
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: const Color(0xFFEDEDED),
-                  foregroundColor: Colors.black87,
-                  side: const BorderSide(color: Color(0xFF2F2F2F)),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
+      backgroundColor: _background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: size.width * 0.06,
+                  vertical: size.height * 0.02,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: size.height * 0.01),
+                    Center(
+                      child: Text(
+                        'Add Your License Info',
+                        style: TextStyle(
+                          fontSize: (size.width * 0.055).clamp(18.0, 24.0),
+                          fontWeight: FontWeight.w600,
+                          color: _textDark,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.03),
+                    Text(
+                      'Personal Info',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.048).clamp(16.0, 20.0),
+                        fontWeight: FontWeight.w600,
+                        color: _textDark,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.02),
+                    Text(
+                      'Name',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.045).clamp(14.0, 18.0),
+                        fontWeight: FontWeight.w500,
+                        color: _textDark,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.01),
+                    TextField(
+                      controller: _nameController,
+                      decoration: _inputDecoration('Write here'),
+                    ),
+                    SizedBox(height: size.height * 0.02),
+                    Text(
+                      'User Photo',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.045).clamp(14.0, 18.0),
+                        fontWeight: FontWeight.w500,
+                        color: _textDark,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.01),
+                    TextField(
+                      controller: _userPhotoController,
+                      readOnly: true,
+                      onTap: _pickUserPhoto,
+                      decoration: _inputDecoration('Select a file (jpg/png)')
+                          .copyWith(
+                        suffixIcon: IconButton(
+                          onPressed: _pickUserPhoto,
+                          icon: const Icon(Icons.attach_file),
+                          color: _textDark,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.02),
+                    Text(
+                      'License Number',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.045).clamp(14.0, 18.0),
+                        fontWeight: FontWeight.w500,
+                        color: _textDark,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.01),
+                    TextField(
+                      controller: _licenseNoController,
+                      decoration: _inputDecoration('Write here'),
+                    ),
+                    SizedBox(height: size.height * 0.02),
+                    Text(
+                      'State',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.045).clamp(14.0, 18.0),
+                        fontWeight: FontWeight.w500,
+                        color: _textDark,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.01),
+                    DropdownButtonFormField<String>(
+                      value: _selectedState,
+                      decoration: _inputDecoration('Select State'),
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      hint: const Text('Select State'),
+                      items: _states
+                          .map(
+                            (state) => DropdownMenuItem(
+                              value: state,
+                              child: Text(state),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() => _selectedState = value);
+                      },
+                    ),
+                    SizedBox(height: size.height * 0.02),
+                    Text(
+                      'Expiration Date',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.045).clamp(14.0, 18.0),
+                        fontWeight: FontWeight.w500,
+                        color: _textDark,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.01),
+                    TextField(
+                      controller: _expirationController,
+                      readOnly: true,
+                      onTap: _selectExpirationDate,
+                      decoration: _inputDecoration('MM/DD/YYYY'),
+                    ),
+                    SizedBox(height: size.height * 0.02),
+                    Text(
+                      'License Class',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.045).clamp(14.0, 18.0),
+                        fontWeight: FontWeight.w500,
+                        color: _textDark,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.01),
+                    DropdownButtonFormField<String>(
+                      value: _selectedClass,
+                      decoration: _inputDecoration('Select Class'),
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      hint: const Text('Select Class'),
+                      items: _licenseClasses
+                          .map(
+                            (licenseClass) => DropdownMenuItem(
+                              value: licenseClass,
+                              child: Text(licenseClass),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() => _selectedClass = value);
+                      },
+                    ),
+                    SizedBox(height: size.height * 0.02),
+                    Text(
+                      'Upload License Photo',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.045).clamp(14.0, 18.0),
+                        fontWeight: FontWeight.w500,
+                        color: _textDark,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.01),
+                    TextField(
+                      controller: _licensePhotoController,
+                      readOnly: true,
+                      onTap: _pickLicensePhoto,
+                      decoration: _inputDecoration('Select a file (jpg/png)')
+                          .copyWith(
+                        suffixIcon: IconButton(
+                          onPressed: _pickLicensePhoto,
+                          icon: const Icon(Icons.attach_file),
+                          color: _textDark,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.02),
+                  ],
+                ),
+              ),
+            ),
+            AnimatedPadding(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.fromLTRB(
+                size.width * 0.06,
+                size.height * 0.01,
+                size.width * 0.06,
+                viewInsets.bottom + size.height * 0.02,
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: (size.height * 0.07).clamp(48.0, 58.0),
+                child: ElevatedButton(
+                  onPressed: _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _primaryBlue,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  minimumSize: const Size(0, 30),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const Text(
-                  'Upload new photo +',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            height: 140,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x14000000),
-                  blurRadius: 8,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                'assets/images/drivingLicence.png',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x14000000),
-                  blurRadius: 8,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'License Information',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 10),
-                LicenseEditField(label: 'Name', controller: _nameController),
-                LicenseEditField(
-                  label: 'License No',
-                  controller: _licenseNoController,
-                ),
-                LicenseEditField(label: 'State', controller: _stateController),
-                LicenseEditField(
-                  label: 'Date of birth',
-                  controller: _dobController,
-                ),
-                LicenseEditField(
-                  label: 'Expire Date',
-                  controller: _expireController,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-          SizedBox(
-            width: double.infinity,
-            height: 46,
-            child: ElevatedButton(
-              onPressed: _saveAndClose,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1976F3),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  child: Text(
+                    'Submit',
+                    style: TextStyle(
+                      fontSize: (size.width * 0.05).clamp(16.0, 20.0),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
-              child: const Text(
-                'Done',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
             ),
-          ),
-          const SizedBox(height: 16),
-        ],
+          ],
+        ),
       ),
     );
   }
