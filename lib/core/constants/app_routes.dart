@@ -9,6 +9,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String teenDrivers = '/teen-drivers';
   static const String teenDriverPosts = '/teen-driver-posts';
+  static const String teenDriverAddExperience = '/teen-driver-add-experience';
   static const String learningCenter = '/learning-center';
   static const String learningVideo = '/learning-video';
   static const String license = '/license';
@@ -19,4 +20,5 @@ class AppRoutes {
   static const String ticketNotifications = '/ticket-notifications';
   static const String planPricing = '/plan-pricing';
   static const String planPricingDetails = '/plan-pricing-details';
+  static const String community = '/community';
 }

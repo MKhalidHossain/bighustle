@@ -9,6 +9,8 @@ import 'package:flutter_bighustle/moduls/auth/presentation/screen/splash_screen.
 import 'package:flutter_bighustle/moduls/auth/presentation/screen/signup_screen.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 import 'package:flutter_bighustle/moduls/home/screen/bottom_nav_screen.dart';
+import 'package:flutter_bighustle/moduls/home/screen/add_teen_driver_experience_screen.dart';
+import 'package:flutter_bighustle/moduls/home/screen/community_screen.dart';
 import 'package:flutter_bighustle/moduls/home/screen/learning_center_screen.dart';
 import 'package:flutter_bighustle/moduls/home/screen/learning_video_screen.dart';
 import 'package:flutter_bighustle/moduls/home/screen/teen_driver_posts_screen.dart';
@@ -21,7 +23,6 @@ import 'package:flutter_bighustle/moduls/ticket/presentation/screen/plan_pricing
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/plan_pricing_screen.dart';
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_details_screen.dart';
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_screen.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -80,6 +81,10 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (_) => const TeenDriverPostsScreen(),
             );
+          case AppRoutes.teenDriverAddExperience:
+            return MaterialPageRoute(
+              builder: (_) => const AddTeenDriverExperienceScreen(),
+            );
           case AppRoutes.learningCenter:
             return MaterialPageRoute(
               builder: (_) => const LearningCenterScreen(),
@@ -91,13 +96,19 @@ class MyApp extends StatelessWidget {
           case AppRoutes.license:
             return MaterialPageRoute(builder: (_) => const LicenseScreen());
           case AppRoutes.licenseAlerts:
-            return MaterialPageRoute(builder: (_) => const LicenseAlertsScreen());
+            return MaterialPageRoute(
+              builder: (_) => const LicenseAlertsScreen(),
+            );
           case AppRoutes.editLicenseInfo:
-            return MaterialPageRoute(builder: (_) => const EditLicenseInfoScreen());
+            return MaterialPageRoute(
+              builder: (_) => const EditLicenseInfoScreen(),
+            );
           case AppRoutes.ticket:
             return MaterialPageRoute(builder: (_) => const TicketScreen());
           case AppRoutes.ticketDetails:
-            return MaterialPageRoute(builder: (_) => const TicketDetailsScreen());
+            return MaterialPageRoute(
+              builder: (_) => const TicketDetailsScreen(),
+            );
           case AppRoutes.ticketNotifications:
             return MaterialPageRoute(
               builder: (_) => const TicketNotificationScreen(),
@@ -108,6 +119,8 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (_) => const PlanPricingDetailsScreen(),
             );
+          case AppRoutes.community:
+            return MaterialPageRoute(builder: (_) => const CommunityScreen());
           default:
             return MaterialPageRoute(builder: (_) => const LoginScreen());
         }
