@@ -84,6 +84,38 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const BottomNavScreen());
           case AppRoutes.teenDrivers:
             return MaterialPageRoute(builder: (_) => const TeenDriversScreen());
+          case AppRoutes.teenDriverPosts:
+            return MaterialPageRoute(
+              builder: (_) => const TeenDriverPostsScreen(),
+            );
+          case AppRoutes.learningCenter:
+            return MaterialPageRoute(
+              builder: (_) => const LearningCenterScreen(),
+            );
+          case AppRoutes.learningVideo:
+            return MaterialPageRoute(
+              builder: (_) => const LearningVideoScreen(),
+            );
+          case AppRoutes.license:
+            return MaterialPageRoute(builder: (_) => const LicenseScreen());
+          case AppRoutes.licenseAlerts:
+            return MaterialPageRoute(builder: (_) => const LicenseAlertsScreen());
+          case AppRoutes.editLicenseInfo:
+            return MaterialPageRoute(builder: (_) => const EditLicenseInfoScreen());
+          case AppRoutes.ticket:
+            return MaterialPageRoute(builder: (_) => const TicketScreen());
+          case AppRoutes.ticketDetails:
+            return MaterialPageRoute(builder: (_) => const TicketDetailsScreen());
+          case AppRoutes.ticketNotifications:
+            return MaterialPageRoute(
+              builder: (_) => const TicketNotificationScreen(),
+            );
+          case AppRoutes.planPricing:
+            return MaterialPageRoute(builder: (_) => const PlanPricingScreen());
+          case AppRoutes.planPricingDetails:
+            return MaterialPageRoute(
+              builder: (_) => const PlanPricingDetailsScreen(),
+            );
           default:
             return MaterialPageRoute(builder: (_) => const LoginScreen());
         }
