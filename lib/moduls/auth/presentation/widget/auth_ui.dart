@@ -275,7 +275,7 @@ class _AuthOtpFieldsState extends State<AuthOtpFields> {
         _controllers[index + i].text = chars[i];
       }
       final nextIndex =
-          (index + value.length).clamp(0, widget.length - 1) as int;
+          (index + value.length).clamp(0, widget.length - 1);
       _nodes[nextIndex].requestFocus();
       _notifyOtpChanged();
       setState(() {});
