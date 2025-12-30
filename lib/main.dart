@@ -87,6 +87,7 @@ class MyApp extends StatelessWidget {
           case AppRoutes.learningVideo:
             return MaterialPageRoute(
               builder: (_) => const LearningVideoScreen(),
+            );
           case AppRoutes.license:
             return MaterialPageRoute(builder: (_) => const LicenseScreen());
           case AppRoutes.licenseAlerts:
