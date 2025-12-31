@@ -44,13 +44,41 @@ class TeenDriversScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Good Morning, John! 👋',
-                style: TextStyle(
-                  fontSize: (size.width * 0.02).clamp(18.0, 24.0),
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF222222),
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Good Morning, John! 👋',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.02).clamp(18.0, 24.0),
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF222222),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: size.width * 0.03),
+                  SizedBox(
+                    height: (size.height * 0.045).clamp(34.0, 40.0),
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.pushNamed(
+                        context,
+                        AppRoutes.teenDriverAddExperience,
+                      ),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('Add'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: size.width * 0.03,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: size.height * 0.02),
               _CardContainer(

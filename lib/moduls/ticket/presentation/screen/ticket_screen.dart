@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../../core/constants/app_routes.dart';
 import '../widget/payment_method_dialog.dart';
 import '../widget/ticket_card.dart';

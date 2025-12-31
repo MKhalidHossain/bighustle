@@ -179,7 +179,9 @@ class HomeScreen extends StatelessWidget {
                       color: const Color(0xFFC08A0A),
                     ),
                     iconBackground: const Color(0xFFFFF4DB),
-                    onTap: () => _showMessage(context, 'Community'),
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.community);
+                    },
                   ),
 
                   _QuickAccessCard(
