@@ -17,7 +17,11 @@ class TicketDetailsScreen extends StatelessWidget {
         leading: const BackButton(color: Colors.black87),
         title: const Text(
           'Ticket Details',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
         ),
       ),
       body: Padding(
@@ -27,7 +31,7 @@ class TicketDetailsScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFF4C8DFF), width: 1.2),
+            // border: Border.all(color: const Color(0xFF4C8DFF), width: 1.2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,14 +50,17 @@ class TicketDetailsScreen extends StatelessWidget {
                   const SizedBox(width: 10),
                   const Text(
                     'Ticket #TK-452566',
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Text('Status', style: TextStyle(color: Color(0xFF6C6C6C))),
+                  const Text(
+                    'Status',
+                    style: TextStyle(color: Color(0xFF6C6C6C), fontSize: 16),
+                  ),
                   const SizedBox(width: 12),
                   Container(
                     width: 8,
@@ -66,19 +73,19 @@ class TicketDetailsScreen extends StatelessWidget {
                   const SizedBox(width: 6),
                   const Text(
                     'Unpaid',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               const Text(
                 'Amount: \$250.00',
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               const SizedBox(height: 14),
               const Text(
                 'Important Dates',
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               const SizedBox(height: 8),
               const _DetailLine(label: 'Issued:', value: 'Nov 1, 2025'),
@@ -89,7 +96,7 @@ class TicketDetailsScreen extends StatelessWidget {
               const SizedBox(height: 12),
               const Text(
                 'Violation Details',
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               const SizedBox(height: 8),
               const _DetailLine(label: 'Type:', value: 'Speeding'),
@@ -102,7 +109,7 @@ class TicketDetailsScreen extends StatelessWidget {
               const SizedBox(height: 12),
               const Text(
                 'Warnings',
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               const SizedBox(height: 8),
               const _DetailLine(label: 'May cause', value: 'suspension'),
@@ -143,12 +150,12 @@ class _DetailLine extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Color(0xFF6C6C6C)),
+          style: const TextStyle(color: Color(0xFF6C6C6C), fontSize: 16),
         ),
         const SizedBox(width: 6),
         Text(
           value,
-          style: const TextStyle(fontWeight: FontWeight.w500),
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
         ),
       ],
     );

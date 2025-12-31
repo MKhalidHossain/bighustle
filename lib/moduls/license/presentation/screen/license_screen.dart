@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../../core/constants/app_routes.dart';
 import '../controller/license_info_controller.dart';
 import '../widget/license_alert_item.dart';
@@ -17,6 +16,7 @@ class LicenseScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFF2F2F2),
         elevation: 0,
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: const Text(
           'License',
           style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87),
