@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bighustle/core/constants/app_routes.dart';
+import 'package:flutter_bighustle/core/di/external_service_di.dart';
+import 'package:flutter_bighustle/core/di/internal_service_di.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/screen/email_verify_screen.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/screen/forget_password.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/screen/login_screen.dart';
@@ -25,6 +27,9 @@ import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_detai
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  externalServiceDI();
+  initServices();
   runApp(const MyApp());
 }
 
@@ -53,11 +58,11 @@ class MyApp extends StatelessWidget {
           case AppRoutes.forgetPassword:
             return MaterialPageRoute(builder: (_) => const ForgetPassword());
           case AppRoutes.otpVerify:
-            final contact = settings.arguments is String
+            final email = settings.arguments is String
                 ? settings.arguments as String
                 : '';
             return MaterialPageRoute(
-              builder: (_) => OtpVerifyScreen(contact: contact),
+              builder: (_) => OtpVerifyScreen(email: email),
             );
           case AppRoutes.emailVerify:
             final email = settings.arguments is String
@@ -67,11 +72,17 @@ class MyApp extends StatelessWidget {
               builder: (_) => EmailVerifyScreen(email: email),
             );
           case AppRoutes.resetPassword:
-            final email = settings.arguments is String
-                ? settings.arguments as String
-                : null;
+            String? email;
+            String? otp;
+            if (settings.arguments is Map) {
+              final args = settings.arguments as Map;
+              email = args['email'] as String?;
+              otp = args['otp'] as String?;
+            } else if (settings.arguments is String) {
+              email = settings.arguments as String;
+            }
             return MaterialPageRoute(
-              builder: (_) => ResetPasswordscreen(email: email),
+              builder: (_) => ResetPasswordscreen(email: email, otp: otp),
             );
           case AppRoutes.home:
             return MaterialPageRoute(builder: (_) => const BottomNavScreen());
