@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_routes.dart';
+import '../../profile/presentation/screen/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -54,10 +55,13 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(width: 10),
-                  CircleAvatar(
-                    radius: (size.width * 0.045).clamp(14.0, 20.0),
-                    backgroundColor: const Color(0xFFE0E0E0),
-                    child: const Icon(Icons.person, color: Colors.white),
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, AppRoutes.profile),
+                    child: CircleAvatar(
+                      radius: (size.width * 0.045).clamp(14.0, 20.0),
+                      backgroundColor: const Color(0xFFE0E0E0),
+                      child: const Icon(Icons.person, color: Colors.white),
+                    ),
                   ),
                 ],
               ),

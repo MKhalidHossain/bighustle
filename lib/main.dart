@@ -33,6 +33,8 @@ import 'package:flutter_bighustle/moduls/ticket/presentation/screen/plan_pricing
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_details_screen.dart';
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_screen.dart';
 
+import 'moduls/profile/presentation/screen/profile_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -130,6 +132,10 @@ class MyApp extends StatelessWidget {
             );
           case AppRoutes.community:
             return MaterialPageRoute(builder: (_) => const CommunityScreen());
+          case AppRoutes.profile:
+            return MaterialPageRoute(
+              builder: (_) => const ProfileScreen(),
+            );
           default:
             return MaterialPageRoute(builder: (_) => const LoginScreen());
         }
