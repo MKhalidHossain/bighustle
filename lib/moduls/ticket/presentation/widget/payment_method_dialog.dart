@@ -1,120 +1,24 @@
-// import 'package:flutter/material.dart';
-
-// import 'ticket_action_button.dart';
-
-// class PaymentMethodDialog extends StatefulWidget {
-//   final bool? isSelected; // nullable support
-//   final VoidCallback? onClose;
-//   final ValueChanged<bool>? onSelectChanged;
-//   final VoidCallback? onPay;
-
-//   const PaymentMethodDialog({
-//     super.key,
-//     this.isSelected,
-//     this.onClose,
-//     this.onSelectChanged,
-//     this.onPay,
-//   });
-
-//   @override
-//   State<PaymentMethodDialog> createState() => _PaymentMethodDialogState();
-// }
-
-// class _PaymentMethodDialogState extends State<PaymentMethodDialog> {
-//   late bool selected;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     selected = widget.isSelected ?? false;
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Dialog(
-//       backgroundColor: Colors.transparent,
-//       insetPadding: const EdgeInsets.symmetric(horizontal: 28),
-//       child: Container(
-//         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(12),
-//         ),
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             InkWell(
-//               onTap: () {
-//                 setState(() => selected = !selected);
-//                 widget.onSelectChanged?.call(selected);
-//               },
-//               child: Row(
-//                 children: [
-//                   const Text('PayPal'),
-//                   const Spacer(),
-//                   Icon(
-//                     selected
-//                         ? Icons.radio_button_checked
-//                         : Icons.radio_button_off,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             const SizedBox(height: 16),
-//             SizedBox(
-//               width: double.infinity,
-//               child: TicketActionButton(
-//                 label: 'Pay Now',
-//                 onPressed: widget.onPay,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
-
 import 'package:flutter/material.dart';
 
 import 'ticket_action_button.dart';
 
-class PaymentMethodDialog extends StatefulWidget {
-  final bool?isSelected;
+class PaymentMethodDialog extends StatelessWidget {
+  final bool isSelected;
   final VoidCallback? onClose;
-  final ValueChanged<bool>? onSelectChanged;
+  final VoidCallback? onSelect;
   final VoidCallback? onPay;
 
   const PaymentMethodDialog({
     super.key,
     this.isSelected = true,
     this.onClose,
-    this.onSelectChanged,
+    this.onSelect,
     this.onPay,
   });
 
   @override
-  State<PaymentMethodDialog> createState() => _PaymentMethodDialogState();
-}
-
-class _PaymentMethodDialogState extends State<PaymentMethodDialog> {
-
-
-  late bool selected;
-
-  @override
-  void initState() {
-    super.initState();
-    selected = widget.isSelected ?? false;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor:  Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 28),
+    return Center(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 28),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
@@ -141,17 +45,14 @@ class _PaymentMethodDialogState extends State<PaymentMethodDialog> {
                 ),
                 const Spacer(),
                 InkWell(
-                  onTap: widget.onClose,
+                  onTap: onClose,
                   child: const Icon(Icons.close, size: 18, color: Colors.black54),
                 ),
               ],
             ),
             const SizedBox(height: 14),
             InkWell(
-                  onTap: () {
-                setState(() => selected = !selected);
-                widget.onSelectChanged?.call(selected);
-              },
+              onTap: onSelect,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
@@ -169,7 +70,7 @@ class _PaymentMethodDialogState extends State<PaymentMethodDialog> {
                     ),
                     const Spacer(),
                     Icon(
-                      selected   ? Icons.radio_button_checked : Icons.radio_button_off,
+                      isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
                       color: const Color(0xFF3F76F6),
                     ),
                   ],
@@ -181,7 +82,7 @@ class _PaymentMethodDialogState extends State<PaymentMethodDialog> {
               width: double.infinity,
               child: TicketActionButton(
                 label: 'Pay Now',
-                onPressed: widget.onPay,
+                onPressed: onPay,
               ),
             ),
           ],

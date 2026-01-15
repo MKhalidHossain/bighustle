@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bighustle/core/constants/app_routes.dart';
+import 'package:flutter_bighustle/core/notifiers/snackbar_notifier.dart';
+import 'package:flutter_bighustle/moduls/auth/controller/forget_password_controller.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 
 class ForgetPassword extends StatefulWidget {
@@ -11,32 +13,59 @@ class ForgetPassword extends StatefulWidget {
 }
 
 class _ForgetPasswordState extends State<ForgetPassword> {
-  final _contactController = TextEditingController();
+  final _emailController = TextEditingController();
+  late final ForgetPasswordController _controller;
+  bool _initialized = false;
+  bool _isLoading = false;
+
+  void _onControllerUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _controller = ForgetPasswordController(SnackbarNotifier(context: context));
+      _controller.addListener(_onControllerUpdate);
+    }
+  }
 
   @override
   void dispose() {
-    _contactController.dispose();
+    _emailController.dispose();
+    if (_initialized) {
+      _controller.removeListener(_onControllerUpdate);
+      _controller.dispose();
+    }
     super.dispose();
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-
-  void _submit() {
-    final contact = _contactController.text.trim();
-    if (contact.isEmpty) {
-      _showMessage('Please enter your email or phone.');
+  Future<void> _submit() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email.')),
+      );
       return;
     }
 
-    Navigator.pushNamed(
-      context,
-      AppRoutes.otpVerify,
-      arguments: contact,
+    setState(() => _isLoading = true);
+    await _controller.sendForgetPasswordRequest(
+      onSuccess: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.otpVerify,
+          arguments: email,
+        );
+      },
     );
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -70,7 +99,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
               ),
               SizedBox(height: size.height * 0.015),
               Text(
-                'Enter your email or phone to reset your password.',
+                'Enter your email to reset your password.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: (size.width * 0.045).clamp(14.0, 18.0),
@@ -80,16 +109,18 @@ class _ForgetPasswordState extends State<ForgetPassword> {
               SizedBox(height: size.height * 0.04),
               AuthTextField(
                 size: size,
-                controller: _contactController,
-                hintText: 'Email or Phone',
+                controller: _emailController,
+                hintText: 'Email',
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.done,
+                onChanged: (value) => _controller.email = value,
               ),
               SizedBox(height: size.height * 0.04),
               AuthPrimaryButton(
                 size: size,
                 label: 'Continue',
-                onPressed: _submit,
+                onPressed: _controller.canSend() && !_isLoading ? _submit : null,
+                isLoading: _isLoading,
               ),
             ],
           ),

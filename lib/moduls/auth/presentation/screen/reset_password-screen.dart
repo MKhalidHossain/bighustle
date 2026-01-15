@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bighustle/core/constants/app_routes.dart';
+import 'package:flutter_bighustle/core/notifiers/snackbar_notifier.dart';
+import 'package:flutter_bighustle/moduls/auth/controller/reset_password_controller.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 
 class ResetPasswordscreen extends StatefulWidget {
   final String? email;
+  final String? otp;
 
   const ResetPasswordscreen({
     super.key,
     this.email,
+    this.otp,
   });
 
   @override
@@ -18,38 +22,69 @@ class ResetPasswordscreen extends StatefulWidget {
 class _ResetPasswordscreenState extends State<ResetPasswordscreen> {
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+  late final ResetPasswordController _controller;
+  bool _initialized = false;
+  bool _isLoading = false;
+
+  void _onControllerUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   void dispose() {
     _passwordController.dispose();
     _confirmController.dispose();
+    if (_initialized) {
+      _controller.removeListener(_onControllerUpdate);
+      _controller.dispose();
+    }
     super.dispose();
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _controller = ResetPasswordController(SnackbarNotifier(context: context))
+        ..email = widget.email ?? ''
+        ..otp = widget.otp ?? '';
+      _controller.addListener(_onControllerUpdate);
+    }
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final password = _passwordController.text.trim();
     final confirm = _confirmController.text.trim();
 
     if (password.isEmpty || confirm.isEmpty) {
-      _showMessage('Please enter your new password.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your new password.')),
+      );
       return;
     }
     if (password != confirm) {
-      _showMessage('Passwords do not match.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match.')),
+      );
       return;
     }
 
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.login,
-      (route) => false,
+    setState(() => _isLoading = true);
+    await _controller.resetPassword(
+      onSuccess: () {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.login,
+          (route) => false,
+        );
+      },
     );
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -97,6 +132,7 @@ class _ResetPasswordscreenState extends State<ResetPasswordscreen> {
                 hintText: 'New Password',
                 isPassword: true,
                 textInputAction: TextInputAction.next,
+                onChanged: (value) => _controller.password = value,
               ),
               SizedBox(height: size.height * 0.02),
               AuthTextField(
@@ -105,12 +141,14 @@ class _ResetPasswordscreenState extends State<ResetPasswordscreen> {
                 hintText: 'Confirm Password',
                 isPassword: true,
                 textInputAction: TextInputAction.done,
+                onChanged: (value) => _controller.confirmPassword = value,
               ),
               SizedBox(height: size.height * 0.04),
               AuthPrimaryButton(
                 size: size,
                 label: 'Reset Password',
-                onPressed: _submit,
+                onPressed: _controller.canReset() && !_isLoading ? _submit : null,
+                isLoading: _isLoading,
               ),
             ],
           ),

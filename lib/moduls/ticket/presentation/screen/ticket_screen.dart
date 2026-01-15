@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_routes.dart';
-import '../widget/payment_method_dialog.dart';
 import '../widget/ticket_card.dart';
 import '../widget/ticket_summary_card.dart';
 
-class TicketScreen extends StatefulWidget {
+class TicketScreen extends StatelessWidget {
   const TicketScreen({super.key});
 
   @override
-  State<TicketScreen> createState() => _TicketScreenState();
-}
-
-class _TicketScreenState extends State<TicketScreen> {
-  @override
   Widget build(BuildContext context) {
-    bool _isPaypalselected = false;
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
       body: SafeArea(
@@ -45,39 +38,12 @@ class _TicketScreenState extends State<TicketScreen> {
               type: 'Speeding',
               amount: r'$250.00',
               dueDate: 'Nov 25,2025',
-              onPayNow: () => showDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (dialogContext) { 
-                  bool selected = _isPaypalselected;
-                  return StatefulBuilder(
-                    builder: (context,setDialogState){
-                      return PaymentMethodDialog(
-                     // local state for dialog UI
-                    isSelected: _isPaypalselected,
-                    
-                    onSelectChanged: (val) {
-                      _isPaypalselected = val;
-                      // setDialogState(() => _isPaypalselected = !_isPaypalselected);
-                      setState(() => _isPaypalselected = !_isPaypalselected);
-                    },
-                        
-                    onClose: () => Navigator.of(context).pop(dialogContext),
-                    onPay: () => Navigator.of(
-                      context,
-                    ).pushNamed(AppRoutes.planPricingDetails),
-                                    );
-                    },
-                   
-                  );
-                }
+              onPayNow: () => Navigator.of(context).pushNamed(
+                AppRoutes.planPricing,
               ),
-
-              // Navigator.of(context).pushNamed(
-              //   AppRoutes.planPricing,
-              // ),
-              onViewDetails: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.ticketDetails),
+              onViewDetails: () => Navigator.of(context).pushNamed(
+                AppRoutes.ticketDetails,
+              ),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -91,8 +57,9 @@ class _TicketScreenState extends State<TicketScreen> {
               amount: r'$250.00',
               dueDate: 'Nov 25,2025',
               isPaid: true,
-              onViewDetails: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.ticketDetails),
+              onViewDetails: () => Navigator.of(context).pushNamed(
+                AppRoutes.ticketDetails,
+              ),
             ),
           ],
         ),

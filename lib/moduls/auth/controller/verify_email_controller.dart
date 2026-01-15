@@ -10,16 +10,18 @@ class VerifyEmailController extends ChangeNotifier {
   final ProcessStatusNotifier processStatusNotifier = ProcessStatusNotifier();
   final SnackbarNotifier snackbarNotifier;
   
-  String _contact = '';
+  String _email = '';
   String _otp = '';
+  String _purpose = 'reset_password';
   
-  String get contact => _contact;
+  String get email => _email;
   String get otp => _otp;
+  String get purpose => _purpose;
 
   VerifyEmailController(this.snackbarNotifier);
 
   bool canVerify() {
-    return _contact.isNotEmpty && _otp.isNotEmpty && _otp.length >= 6;
+    return _email.isNotEmpty && _otp.isNotEmpty && _otp.length >= 6;
   }
 
   void updateButtonState() {
@@ -30,9 +32,9 @@ class VerifyEmailController extends ChangeNotifier {
     }
   }
 
-  set contact(String value) {
-    if (value != _contact) {
-      _contact = value.trim();
+  set email(String value) {
+    if (value != _email) {
+      _email = value.trim();
       updateButtonState();
       notifyListeners();
     }
@@ -46,11 +48,18 @@ class VerifyEmailController extends ChangeNotifier {
     }
   }
 
+  set purpose(String value) {
+    if (value != _purpose) {
+      _purpose = value.trim();
+      notifyListeners();
+    }
+  }
+
   Future<void> verifyEmail({
     required VoidCallback onSuccess,
   }) async {
     if (!canVerify()) {
-      snackbarNotifier.notifyError(message: 'Please enter contact and valid OTP');
+      snackbarNotifier.notifyError(message: 'Please enter email and valid OTP');
       return;
     }
 
@@ -60,7 +69,11 @@ class VerifyEmailController extends ChangeNotifier {
     
     await Get.find<AuthInterface>()
         .verifyEmail(
-          param: VerifyEmailRequestModel(contact: contact, otp: otp),
+          param: VerifyEmailRequestModel(
+            email: email,
+            otp: otp,
+            purpose: purpose,
+          ),
         )
         .then((result) {
       handleFold(

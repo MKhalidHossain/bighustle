@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bighustle/core/constants/app_routes.dart';
+import 'package:flutter_bighustle/core/notifiers/snackbar_notifier.dart';
+import 'package:flutter_bighustle/moduls/auth/controller/email_verify_controller.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 
 class EmailVerifyScreen extends StatefulWidget {
@@ -22,6 +24,19 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
   int _resendTime = 45;
   String _otp = '';
   bool _showOtpError = false;
+  late final EmailVerifyController _controller;
+  bool _initialized = false;
+  bool _isLoading = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _controller = EmailVerifyController(SnackbarNotifier(context: context))
+        ..email = widget.email;
+    }
+  }
 
   @override
   void initState() {
@@ -32,6 +47,9 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    if (_initialized) {
+      _controller.dispose();
+    }
     super.dispose();
   }
 
@@ -61,20 +79,20 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
     }
 
     setState(() => _showOtpError = false);
-
-    await showAuthStatusDialog(
-      context,
-      success: true,
-      message: 'Verified successfully.',
+    _controller.otp = _otp;
+    setState(() => _isLoading = true);
+    await _controller.verifyEmail(
+      onSuccess: () {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.login,
+          (route) => false,
+        );
+      },
     );
-    if (!mounted) {
-      return;
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.login,
-      (route) => false,
-    );
   }
 
   @override
@@ -165,7 +183,8 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
               AuthPrimaryButton(
                 size: size,
                 label: 'Verify',
-                onPressed: _submit,
+                onPressed: !_isLoading ? _submit : null,
+                isLoading: _isLoading,
               ),
             ],
           ),

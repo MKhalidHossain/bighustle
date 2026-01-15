@@ -14,10 +14,7 @@ class RegisterScreenController extends ChangeNotifier {
 
   RegisterScreenController(this.snackbarNotifier);
 
-  String _name = '';
   String _email = '';
-  String _employeeId = '';
-  String _role = 'team_member';
   String _password = '';
   String _confirmPassword = '';
 
@@ -25,40 +22,13 @@ class RegisterScreenController extends ChangeNotifier {
   bool _busy = false;
   bool get isBusy => _busy;
 
-  String get name => _name;
   String get email => _email;
-  String get employeeId => _employeeId;
-  String get role => _role;
   String get password => _password;
   String get confirmPassword => _confirmPassword;
-
-  set name(String v) {
-    if (v != _name) {
-      _name = v.trim();
-      _canRegister();
-      notifyListeners();
-    }
-  }
 
   set email(String v) {
     if (v != _email) {
       _email = v.trim();
-      _canRegister();
-      notifyListeners();
-    }
-  }
-
-  set employeeId(String v) {
-    if (v != _employeeId) {
-      _employeeId = v.trim();
-      _canRegister();
-      notifyListeners();
-    }
-  }
-
-  set role(String v) {
-    if (v != _role) {
-      _role = v.trim();
       _canRegister();
       notifyListeners();
     }
@@ -82,11 +52,8 @@ class RegisterScreenController extends ChangeNotifier {
 
   // Local “can submit” check so the UI doesn’t need to access internal fields of ProcessStatusNotifier
   bool get canSubmit =>
-      _name.isNotEmpty &&
-          _email.isNotEmpty &&
+      _email.isNotEmpty &&
           isEmail(_email) &&
-          _employeeId.isNotEmpty &&
-          _role.isNotEmpty &&
           _password.isNotEmpty &&
           _password.length >= 6 &&
           _confirmPassword.isNotEmpty &&
@@ -113,11 +80,9 @@ class RegisterScreenController extends ChangeNotifier {
     processStatusNotifier.setLoading();
 
     final payload = RegisterRequest(
-      name: _name,
       email: _email,
-      employeeId: _employeeId,
       password: _password,
-      role: _role,
+      confirmPassword: _confirmPassword,
     );
 
     // Optional small delay to match your login behavior

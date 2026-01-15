@@ -1,18 +1,18 @@
 class ForgetPasswordRequestModel {
-  final String contact;
+  final String email;
 
-  ForgetPasswordRequestModel({required this.contact});
+  ForgetPasswordRequestModel({required this.email});
 
   Map<String, dynamic> toJson() {
     return {
-      'contact': contact,
+      'email': email,
     };
   }
 
   // Convert a Map to a ForgetPasswordRequestModel object
   factory ForgetPasswordRequestModel.fromJson(Map<String, dynamic> json) {
     return ForgetPasswordRequestModel(
-      contact: json['contact'],
+      email: json['email'],
     );
   }
 }
