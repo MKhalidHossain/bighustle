@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bighustle/core/constants/app_routes.dart';
+import 'package:flutter_bighustle/core/notifiers/snackbar_notifier.dart';
+import 'package:flutter_bighustle/moduls/auth/controller/login_controller.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,29 +15,64 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  late final LoginsScreenController _controller;
+  bool _initialized = false;
+  bool _isLoading = false;
+
+  void _onControllerUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _controller = LoginsScreenController(SnackbarNotifier(context: context));
+      _controller.addListener(_onControllerUpdate);
+    }
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    if (_initialized) {
+      _controller.removeListener(_onControllerUpdate);
+      _controller.dispose();
+    }
     super.dispose();
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-
-  void _submit() {
+  Future<void> _submit() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     if (email.isEmpty || password.isEmpty) {
-      _showMessage('Please enter email and password.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter email and password.')),
+      );
       return;
     }
 
-    Navigator.pushReplacementNamed(context, AppRoutes.home);
+    setState(() => _isLoading = true);
+    final success = await _controller.login(
+      needVerification: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.emailVerify,
+          arguments: email,
+        );
+      },
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() => _isLoading = false);
+    if (success) {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    }
   }
 
   @override
@@ -84,6 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.email],
+                onChanged: (value) => _controller.email = value,
               ),
               SizedBox(height: size.height * 0.02),
               AuthTextField(
@@ -93,6 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 isPassword: true,
                 textInputAction: TextInputAction.done,
                 autofillHints: const [AutofillHints.password],
+                onChanged: (value) => _controller.password = value,
               ),
               Align(
                 alignment: Alignment.centerRight,
@@ -116,7 +155,8 @@ class _LoginScreenState extends State<LoginScreen> {
               AuthPrimaryButton(
                 size: size,
                 label: 'Login',
-                onPressed: _submit,
+                onPressed: _controller.canSubmit && !_isLoading ? _submit : null,
+                isLoading: _isLoading,
               ),
             ],
           ),

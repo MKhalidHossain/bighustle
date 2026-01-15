@@ -1,52 +1,40 @@
 class RegisterRequest {
-  final String name;
   final String email;
-  final String employeeId;
   final String password;
-  final String role;
+  final String confirmPassword;
 
   const RegisterRequest({
-    required this.name,
     required this.email,
-    required this.employeeId,
     required this.password,
-    required this.role,
+    required this.confirmPassword,
   });
 
   Map<String, dynamic> toJson() => {
-    'name': name,
     'email': email,
-    'employeeId': employeeId,
     'password': password,
-    'role': role,
+    'confirmPassword': confirmPassword,
   };
 
   factory RegisterRequest.fromJson(Map<String, dynamic> json) =>
       RegisterRequest(
-        name: json['name'] as String? ?? '',
         email: json['email'] as String? ?? '',
-        employeeId: json['employeeId'] as String? ?? '',
         password: json['password'] as String? ?? '',
-        role: json['role'] as String? ?? '',
+        confirmPassword: json['confirmPassword'] as String? ?? '',
       );
 
   RegisterRequest copyWith({
-    String? name,
     String? email,
-    String? employeeId,
     String? password,
-    String? role,
+    String? confirmPassword,
   }) {
     return RegisterRequest(
-      name: name ?? this.name,
       email: email ?? this.email,
-      employeeId: employeeId ?? this.employeeId,
       password: password ?? this.password,
-      role: role ?? this.role,
+      confirmPassword: confirmPassword ?? this.confirmPassword,
     );
   }
 
   @override
   String toString() =>
-      'RegisterRequest(name: $name, email: $email, employeeId: $employeeId, password: ****, role: $role)';
+      'RegisterRequest(email: $email, password: ****, confirmPassword: ****)';
 }
