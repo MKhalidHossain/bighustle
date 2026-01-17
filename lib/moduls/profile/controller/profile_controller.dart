@@ -55,38 +55,38 @@ class VerifyEmailController extends ChangeNotifier {
     }
   }
 
-  Future<void> verifyEmail({
-    required VoidCallback onSuccess,
-  }) async {
-    if (!canVerify()) {
-      snackbarNotifier.notifyError(message: 'Please enter email and valid OTP');
-      return;
-    }
+  // Future<void> verifyEmail({
+  //   required VoidCallback onSuccess,
+  // }) async {
+  //   if (!canVerify()) {
+  //     snackbarNotifier.notifyError(message: 'Please enter email and valid OTP');
+  //     return;
+  //   }
 
-    processStatusNotifier.setLoading();
+  //   processStatusNotifier.setLoading();
     
-    await Future.delayed(const Duration(milliseconds: 500));
+  //   await Future.delayed(const Duration(milliseconds: 500));
     
-    await Get.find<ProfileInterface>()
-        .verifyEmail(
-          param: VerifyEmailRequestModel(
-            email: email,
-            otp: otp,
-            purpose: purpose,
-          ),
-        )
-        .then((result) {
-      handleFold(
-        either: result,
-        processStatusNotifier: processStatusNotifier,
-        successSnackbarNotifier: snackbarNotifier,
-        errorSnackbarNotifier: snackbarNotifier,
-        onSuccess: (_) {
-          onSuccess();
-        },
-      );
-    });
-  }
+  //   await Get.find<ProfileInterface>()
+  //       .verifyEmail(
+  //         param: VerifyEmailRequestModel(
+  //           email: email,
+  //           otp: otp,
+  //           purpose: purpose,
+  //         ),
+  //       )
+  //       .then((result) {
+  //     handleFold(
+  //       either: result,
+  //       processStatusNotifier: processStatusNotifier,
+  //       successSnackbarNotifier: snackbarNotifier,
+  //       errorSnackbarNotifier: snackbarNotifier,
+  //       onSuccess: (_) {
+  //         onSuccess();
+  //       },
+  //     );
+  //   });
+  // }
 
   @override
   void dispose() {
