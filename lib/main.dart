@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bighustle/core/constants/app_routes.dart';
 import 'package:flutter_bighustle/core/di/external_service_di.dart';
 import 'package:flutter_bighustle/core/di/internal_service_di.dart';
-import 'package:flutter_bighustle/moduls/auth/presentation/screen/email_verify_screen.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/screen/forget_password.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/screen/login_screen.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/screen/otp_verify_screen.dart';
