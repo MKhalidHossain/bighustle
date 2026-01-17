@@ -1,10 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'package:flutter_bighustle/core/constants/app_routes.dart';
+import 'package:flutter_bighustle/core/services/app_pigeon/app_pigeon.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  bool _navigated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkAuth());
+  }
+
+  Future<void> _checkAuth() async {
+    if (_navigated) {
+      return;
+    }
+    final status = await Get.find<AppPigeon>().currentAuth();
+    if (!mounted || _navigated) {
+      return;
+    }
+    _navigated = true;
+    if (status is Authenticated) {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } else {
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +51,7 @@ class SplashScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              SizedBox(height: size.height * 0.12),
+              SizedBox(height: size.height * 0.18),
               Center(
                 child: AuthLogo(fontSize: size.width * 0.2),
               ),
@@ -35,29 +66,15 @@ class SplashScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              const CircularProgressIndicator(),
+              SizedBox(height: size.height * 0.04),
               Text(
-                'Signing up means you agree to our Terms &\nConditions and acknowledge our Privacy Policy.',
+                'Checking your session...',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: (size.width * 0.04).clamp(12.0, 16.0),
                   color: AuthColors.textMuted,
                 ),
-              ),
-              SizedBox(height: size.height * 0.03),
-              AuthPrimaryButton(
-                size: size,
-                label: 'Log In',
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.login);
-                },
-              ),
-              SizedBox(height: size.height * 0.02),
-              AuthSecondaryButton(
-                size: size,
-                label: 'Sign Up',
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.signup);
-                },
               ),
               SizedBox(height: size.height * 0.02),
             ],
