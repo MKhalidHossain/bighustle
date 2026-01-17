@@ -20,19 +20,8 @@ import 'package:flutter_bighustle/moduls/license/presentation/screen/license_scr
 import 'package:flutter_bighustle/moduls/license/presentation/screen/liscense_alearts_screen.dart';
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/notification_screen.dart';
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/plan_pricing_details_screen.dart';
-import 'package:flutter_bighustle/moduls/ticket/presentation/screen/plan_pricing_screen.dart';
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_details_screen.dart';
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_screen.dart';
-
-import 'package:flutter_bighustle/moduls/license/presentation/screen/edit_license_info_screen.dart';
-import 'package:flutter_bighustle/moduls/license/presentation/screen/license_screen.dart';
-import 'package:flutter_bighustle/moduls/license/presentation/screen/liscense_alearts_screen.dart';
-import 'package:flutter_bighustle/moduls/ticket/presentation/screen/notification_screen.dart';
-import 'package:flutter_bighustle/moduls/ticket/presentation/screen/plan_pricing_details_screen.dart';
-import 'package:flutter_bighustle/moduls/ticket/presentation/screen/plan_pricing_screen.dart';
-import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_details_screen.dart';
-import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_screen.dart';
-
 import 'moduls/profile/presentation/screen/profile_screen.dart';
 
 void main() {
