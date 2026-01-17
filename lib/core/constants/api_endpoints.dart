@@ -145,7 +145,7 @@ base class ApiEndpoints {
 
   // ---------------------- LICENSE -----------------------------
   /// ### get
-  static const String getLicense = _License.getLicense;
+  static String getLicense = _License._licenseRoute;
 }
 
 //arrow360degree@gmail.com
@@ -158,7 +158,7 @@ class _RemoteServer {
 
 class _LocalHostWifi {
   static const String socketUrl = 'http://localhost:5003';
-  static const String baseUrl = 'http://10.10.5.85:5000/api/v1';
+  static const String baseUrl = 'http://10.10.5.94:5000/api/v1';
 }
 
 class _Auth {
@@ -289,7 +289,7 @@ class _Message {
 }
 
 // ---------------------- LICENSE -----------------------------
-class _License {
-  static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
-  static const String getLicense = _licenseRoute;
-}
+// class _License {
+//   static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
+//   static const String getLicense = _licenseRoute;
+// }
