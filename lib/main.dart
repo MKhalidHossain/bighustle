@@ -25,6 +25,7 @@ import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_detai
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_screen.dart';
 import 'moduls/profile/presentation/screen/profile_screen.dart';
 
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   externalServiceDI();

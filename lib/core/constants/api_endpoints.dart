@@ -89,6 +89,10 @@ base class ApiEndpoints {
 
   static const String status = _User.status;
 
+  // ---------------------- LICENSE -----------------------------
+  /// ### post
+  static const String createLicense = _License.create;
+
   // ---------------------- RIDE -----------------------------
   /// ### post
   static const String createRide = _Ride.createRide;
@@ -138,6 +142,10 @@ base class ApiEndpoints {
   ///////////
   ///
   static String timeExtend(String chatId) => _Message.timeExtend(chatId);
+
+  // ---------------------- LICENSE -----------------------------
+  /// ### get
+  static const String getLicense = _License.getLicense;
 }
 
 //arrow360degree@gmail.com
@@ -222,6 +230,12 @@ class _User {
   static const String status = '$_userRoute/status';
 }
 
+// ---------------------- LICENSE -----------------------------
+class _License {
+  static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
+  static const String create = '$_licenseRoute/create';
+}
+
 // ---------------------- RIDE -----------------------------
 class _Ride {
   static const String _rideRoute = '${ApiEndpoints.baseUrl}/ride';
@@ -272,4 +286,10 @@ class _Message {
 
   static String timeExtend(String chatId) =>
       "$_messageRoute/extend-time/$chatId";
+}
+
+// ---------------------- LICENSE -----------------------------
+class _License {
+  static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
+  static const String getLicense = _licenseRoute;
 }

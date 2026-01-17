@@ -44,20 +44,20 @@ class ProcessStatusNotifier extends ChangeNotifier{
     _status = LoadingStatus(message: message);
     notifyListeners();
   }
-  setSuccess({String? message}) {
+  void setSuccess({String? message}) {
     _status = SuccessStatus(message: message);
     notifyListeners();
   }
-  setError({String? message}) {
+  void setError({String? message}) {
     _status = ErrorStatus(message: message);
     notifyListeners();
   }
-  setEnabled({String? message}) {
+  void setEnabled({String? message}) {
     if(_status is EnabledStatus) return;
     _status = EnabledStatus(message: message);
     notifyListeners();
   }
-  setDisabled({String? message}) {
+  void setDisabled({String? message}) {
     _status = DisabledStatus(message: message);
     notifyListeners();
   }
