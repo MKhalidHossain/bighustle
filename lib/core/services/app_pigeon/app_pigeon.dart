@@ -46,11 +46,11 @@ class AppPigeon {
     _init();
   }
 
-  _init() {
+  void _init() {
     _authService.init();
   }
 
-  dispose() {
+  void dispose() {
     _authService.dispose();
     _socketService._disposeSocket();
   }
