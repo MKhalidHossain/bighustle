@@ -89,6 +89,10 @@ base class ApiEndpoints {
 
   static const String status = _User.status;
 
+  // ---------------------- LICENSE -----------------------------
+  /// ### post
+  static const String createLicense = _License.create;
+
   // ---------------------- RIDE -----------------------------
   /// ### post
   static const String createRide = _Ride.createRide;
@@ -220,6 +224,12 @@ class _User {
   static const String allUser = '$_userRoute/all-user';
   static const String setVisibility = '$_userRoute/visibility';
   static const String status = '$_userRoute/status';
+}
+
+// ---------------------- LICENSE -----------------------------
+class _License {
+  static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
+  static const String create = '$_licenseRoute/create';
 }
 
 // ---------------------- RIDE -----------------------------

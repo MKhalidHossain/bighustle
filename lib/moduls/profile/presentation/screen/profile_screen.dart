@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../widget/logout_dialog.dart';
 import '../widget/profile_menu_item.dart';
+import 'add_license_info_screen.dart';
 import 'change_password_screen.dart';
 import 'notification_screen.dart';
 import 'personal_info_screen.dart';
@@ -24,10 +25,7 @@ class ProfileScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: const Text(
           'Profile',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
         ),
       ),
       //
@@ -40,8 +38,18 @@ class ProfileScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
+                MaterialPageRoute(builder: (_) => const PersonalInfoScreen()),
+              );
+            },
+          ),
+          ProfileMenuItem(
+            icon: Icons.person_outline,
+            title: ' Add Your License Info',
+            onTap: () {
+              Navigator.push(
+                context,
                 MaterialPageRoute(
-                  builder: (_) => const PersonalInfoScreen(),
+                  builder: (_) => const AddLicenseInfoScreen(),
                 ),
               );
             },
@@ -52,9 +60,7 @@ class ProfileScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const ChangePasswordScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const ChangePasswordScreen()),
               );
             },
           ),
@@ -64,9 +70,7 @@ class ProfileScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const NotificationScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const NotificationScreen()),
               );
             },
           ),
@@ -76,9 +80,7 @@ class ProfileScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const PrivacyPolicyScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
               );
             },
           ),
@@ -88,9 +90,7 @@ class ProfileScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const TermsConditionScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const TermsConditionScreen()),
               );
             },
           ),
@@ -105,3 +105,17 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
+/*
+
+{
+  "fullName": "Rabby",
+  "userPhoto": "https://cdn.example.com/user/photo.png",
+  "licenseNumber": "CS235613131657",
+  "state": "Kingsland",
+  "dateOfBirth": "1990-07-19",
+  "expiryDate": "2026-07-19",
+  "licenseClass": "C",
+  "licensePhoto": "https://cdn.example.com/license/license.jpg"
+}
+
+*/
