@@ -57,7 +57,7 @@ class _RSaveButtonState extends State<RSaveButton> {
     super.dispose();
   }
 
-  _update() {
+  void _update() {
     Future.delayed(const Duration(milliseconds: 100)).then((_) {
       if (mounted && context.mounted) {
         setState(() {});

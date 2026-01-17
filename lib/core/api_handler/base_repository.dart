@@ -14,14 +14,14 @@ base class BaseRepository {
   }) async {
     try {
       return await tryFunc().then((value) => Right(value));
-    } on ServerException catch (e) {
+    } on ServerException {
       return Left(
         DataCRUDFailure(
           failure: Failure.severFailure,
           fullError: 'Server failed!',
         ),
       );
-    } on NoDataException catch (e) {
+    } on NoDataException {
       return Left(
         DataCRUDFailure(failure: Failure.noData, fullError: "Doesn't exist!"),
       );

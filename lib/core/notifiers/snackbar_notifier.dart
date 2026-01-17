@@ -8,7 +8,7 @@ class SnackbarNotifier {
   BuildContext context;
   SnackbarNotifier({required this.context});
 
-  notifySuccess({String? message}) {
+  void notifySuccess({String? message}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message ?? "Success", maxLines: 3, style: TextStyle(color: Colors.white).bold.regular),
@@ -19,7 +19,7 @@ class SnackbarNotifier {
     );
   }
 
-  notify({String? message}) {
+  void notify({String? message}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message ?? "", maxLines: 3, style: TextStyle(color: Colors.white).bold.regular),
@@ -30,7 +30,7 @@ class SnackbarNotifier {
     );
   }
 
-  notifyError({String? message}) {
+  void notifyError({String? message}) {
     if(context.mounted && context.owner != null) {
       ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

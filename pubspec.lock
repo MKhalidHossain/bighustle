@@ -220,10 +220,10 @@ packages:
     dependency: "direct main"
     description:
       name: get
-      sha256: "5ed34a7925b85336e15d472cc4cfe7d9ebf4ab8e8b9f688585bf6b50f4c3d79a"
+      sha256: e4e7335ede17452b391ed3b2ede016545706c01a02292a6c97619705e7d2a85e
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.3"
+    version: "4.6.6"
   html:
     dependency: transitive
     description:

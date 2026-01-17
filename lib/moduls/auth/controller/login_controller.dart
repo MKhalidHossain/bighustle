@@ -14,7 +14,7 @@ class LoginsScreenController extends ChangeNotifier {
 
   bool get canSubmit => _email.isNotEmpty && _password.isNotEmpty;
 
-  canLogin() {
+  void canLogin() {
     if (canSubmit) {
       processStatusNotifier.setEnabled();
     } else {
@@ -70,7 +70,7 @@ class LoginsScreenController extends ChangeNotifier {
           return true;
         },
       );
-    } on FormatException catch (e) {
+    } on FormatException {
       processStatusNotifier.setError();
       snackbarNotifier.notifyError(
         message: 'Invalid response from server. Please try again.',
