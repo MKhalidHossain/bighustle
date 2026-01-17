@@ -41,7 +41,9 @@ class _SignupScreenState extends State<SignupScreen> {
     super.didChangeDependencies();
     if (!_initialized) {
       _initialized = true;
-      _controller = RegisterScreenController(SnackbarNotifier(context: context));
+      _controller = RegisterScreenController(
+        SnackbarNotifier(context: context),
+      );
       _controller.addListener(_onControllerUpdate);
     }
   }
@@ -52,25 +54,21 @@ class _SignupScreenState extends State<SignupScreen> {
     final confirm = _confirmController.text.trim();
 
     if (email.isEmpty || password.isEmpty || confirm.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields.')));
       return;
     }
     if (password != confirm) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match.')));
       return;
     }
 
     await _controller.register(
       onSuccessNavigate: () {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.emailVerify,
-          arguments: email,
-        );
+        Navigator.pushNamed(context, AppRoutes.login);
       },
     );
   }
@@ -91,9 +89,7 @@ class _SignupScreenState extends State<SignupScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(height: size.height * 0.04),
-              Center(
-                child: AuthLogo(fontSize: size.width * 0.18),
-              ),
+              Center(child: AuthLogo(fontSize: size.width * 0.18)),
               SizedBox(height: size.height * 0.04),
               Text(
                 'Get Started',
@@ -145,8 +141,9 @@ class _SignupScreenState extends State<SignupScreen> {
               AuthPrimaryButton(
                 size: size,
                 label: 'Sign up',
-                onPressed:
-                    _controller.canSubmit && !_controller.isBusy ? _submit : null,
+                onPressed: _controller.canSubmit && !_controller.isBusy
+                    ? _submit
+                    : null,
                 isLoading: _controller.isBusy,
               ),
             ],

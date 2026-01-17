@@ -64,13 +64,13 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (_) => OtpVerifyScreen(email: email),
             );
-          case AppRoutes.emailVerify:
-            final email = settings.arguments is String
-                ? settings.arguments as String
-                : '';
-            return MaterialPageRoute(
-              builder: (_) => EmailVerifyScreen(email: email),
-            );
+          // case AppRoutes.emailVerify:
+          //   final email = settings.arguments is String
+          //       ? settings.arguments as String
+          //       : '';
+          //   return MaterialPageRoute(
+          //     // builder: (_) => EmailVerifyScreen(email: email),
+          //   );
           case AppRoutes.resetPassword:
             String? email;
             String? otp;
