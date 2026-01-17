@@ -29,15 +29,13 @@ class InfoField extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: child ??
+            child:
+                child ??
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
                     value,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.black54,
-                    ),
+                    style: const TextStyle(fontSize: 13, color: Colors.black54),
                   ),
                 ),
           ),
