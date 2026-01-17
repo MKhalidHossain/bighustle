@@ -1,5 +1,6 @@
 
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_bighustle/core/api_handler/failure.dart';
 import 'package:flutter_bighustle/core/api_handler/success.dart';
 import 'package:flutter_bighustle/core/constants/api_endpoints.dart';
@@ -10,6 +11,7 @@ import '../model/login_request_model.dart';
 import '../model/logout_request_model.dart';
 import '../model/register_request_model.dart';
 import '../model/reset_password_request_model.dart';
+import '../model/change_password_request_model.dart';
 import '../model/verify_email_request_model.dart';
 import '../model/verify_email_register_request_model.dart';
 
@@ -29,9 +31,64 @@ final class AuthInterfaceImpl extends AuthInterface {
           ApiEndpoints.signup,
           data: param.toJson(),
         );
+        final responseBody = response.data is Map
+            ? Map<String, dynamic>.from(response.data)
+            : <String, dynamic>{};
+        final responseData = responseBody["data"];
+        final payload = responseData is Map
+            ? Map<String, dynamic>.from(responseData)
+            : responseBody;
+        final userData = payload['user'] is Map
+            ? Map<String, dynamic>.from(payload['user'])
+            : payload;
+
+        String readString(dynamic value) => value?.toString() ?? '';
+        String pickFirstString(List<dynamic> values) {
+          for (final value in values) {
+            final stringValue = readString(value);
+            if (stringValue.isNotEmpty) {
+              return stringValue;
+            }
+          }
+          return '';
+        }
+
+        final accessToken = pickFirstString([
+          payload['accessToken'],
+          payload['token'],
+          responseBody['accessToken'],
+          responseBody['token'],
+        ]);
+        var refreshToken = pickFirstString([
+          payload['refreshToken'],
+          responseBody['refreshToken'],
+        ]);
+        if (refreshToken.isEmpty) {
+          refreshToken = accessToken;
+        }
+        final userId = pickFirstString([
+          userData['id'],
+          userData['_id'],
+          payload['userId'],
+          payload['_id'],
+          responseBody['userId'],
+          responseBody['_id'],
+        ]);
+
+        if (accessToken.isNotEmpty && refreshToken.isNotEmpty) {
+          await appPigeon.saveNewAuth(
+            saveAuthParams: SaveNewAuthParams(
+              accessToken: accessToken,
+              refreshToken: refreshToken,
+              data: userData,
+              uid: userId.isNotEmpty ? userId : null,
+            ),
+          );
+        }
+
         return Success(
           message: 'Register Successfuly',
-          data: "Successful Login.",
+          data: 'Successful Register.',
         );
       },
     );
@@ -154,6 +211,19 @@ final class AuthInterfaceImpl extends AuthInterface {
       );
 
       return Right(Success(data: role));
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final responseData = e.response?.data;
+      final message = responseData is Map && responseData['message'] != null
+          ? responseData['message'].toString()
+          : e.message ?? 'Login failed';
+      return Left(
+        DataCRUDFailure(
+          failure: statusCode == 403 ? Failure.forbidden : Failure.dioFailure,
+          fullError: message,
+          uiMessage: message,
+        ),
+      );
     } catch (e) {
       return Left(
         DataCRUDFailure(
@@ -233,6 +303,22 @@ final class AuthInterfaceImpl extends AuthInterface {
           data: param.toJson(),
         );
         return Success(message: 'Password reset successfully', data: '');
+      },
+    );
+  }
+
+  ///{Change Password}
+  @override
+  Future<Either<DataCRUDFailure, Success<String>>> changePassword({
+    required ChangePasswordRequestModel param,
+  }) async {
+    return await asyncTryCatch(
+      tryFunc: () async {
+        await appPigeon.post(
+          ApiEndpoints.changePassword,
+          data: param.toJson(),
+        );
+        return Success(message: 'Password changed successfully', data: '');
       },
     );
   }

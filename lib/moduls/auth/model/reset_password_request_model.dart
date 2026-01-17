@@ -1,18 +1,21 @@
 class ResetPasswordRequestModel {
   final String email;
-  final String newPassword;
+  final String otp;
+  final String password;
   final String confirmPassword;
 
   ResetPasswordRequestModel({
     required this.email,
-    required this.newPassword,
+    required this.otp,
+    required this.password,
     required this.confirmPassword,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'email': email,
-      'newPassword': newPassword,
+      'otp': otp,
+      'password': password,
       'confirmPassword': confirmPassword,
     };
   }
@@ -21,7 +24,8 @@ class ResetPasswordRequestModel {
   factory ResetPasswordRequestModel.fromJson(Map<String, dynamic> json) {
     return ResetPasswordRequestModel(
       email: json['email'],
-      newPassword: json['newPassword'],
+      otp: json['otp'],
+      password: json['password'],
       confirmPassword: json['confirmPassword'],
     );
   }

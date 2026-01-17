@@ -10,13 +10,13 @@ class ForgetPasswordController extends ChangeNotifier {
   final ProcessStatusNotifier processStatusNotifier = ProcessStatusNotifier();
   final SnackbarNotifier snackbarNotifier;
   
-  String _contact = '';
-  String get contact => _contact;
+  String _email = '';
+  String get email => _email;
 
   ForgetPasswordController(this.snackbarNotifier);
 
   bool canSend() {
-    return _contact.isNotEmpty;
+    return _email.isNotEmpty;
   }
 
   void updateButtonState() {
@@ -27,9 +27,9 @@ class ForgetPasswordController extends ChangeNotifier {
     }
   }
 
-  set contact(String value) {
-    if (value != _contact) {
-      _contact = value.trim();
+  set email(String value) {
+    if (value != _email) {
+      _email = value.trim();
       updateButtonState();
       notifyListeners();
     }
@@ -39,7 +39,7 @@ class ForgetPasswordController extends ChangeNotifier {
     required VoidCallback onSuccess,
   }) async {
     if (!canSend()) {
-      snackbarNotifier.notifyError(message: 'Please enter a valid contact');
+      snackbarNotifier.notifyError(message: 'Please enter a valid email');
       return;
     }
 
@@ -49,7 +49,7 @@ class ForgetPasswordController extends ChangeNotifier {
     
     await Get.find<AuthInterface>()
         .forgetPassword(
-          param: ForgetPasswordRequestModel(contact: contact),
+          param: ForgetPasswordRequestModel(email: email),
         )
         .then((result) {
       handleFold(

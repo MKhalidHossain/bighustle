@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bighustle/core/constants/app_routes.dart';
+import 'package:flutter_bighustle/core/notifiers/snackbar_notifier.dart';
+import 'package:flutter_bighustle/moduls/auth/controller/register_controller.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -11,52 +13,63 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final _nameController = TextEditingController();
-  final _employeeController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+  late final RegisterScreenController _controller;
+  bool _initialized = false;
+  void _onControllerUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _employeeController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
+    if (_initialized) {
+      _controller.removeListener(_onControllerUpdate);
+      _controller.dispose();
+    }
     super.dispose();
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _controller = RegisterScreenController(
+        SnackbarNotifier(context: context),
+      );
+      _controller.addListener(_onControllerUpdate);
+    }
   }
 
-  void _submit() {
-    final name = _nameController.text.trim();
-    final employeeId = _employeeController.text.trim();
+  Future<void> _submit() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final confirm = _confirmController.text.trim();
 
-    if (name.isEmpty ||
-        employeeId.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty ||
-        confirm.isEmpty) {
-      _showMessage('Please fill all fields.');
+    if (email.isEmpty || password.isEmpty || confirm.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields.')));
       return;
     }
     if (password != confirm) {
-      _showMessage('Passwords do not match.');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match.')));
       return;
     }
 
-    Navigator.pushNamed(
-      context,
-      AppRoutes.emailVerify,
-      arguments: email,
+    await _controller.register(
+      onSuccessNavigate: () {
+        Navigator.pushNamed(context, AppRoutes.login);
+      },
     );
   }
 
@@ -76,9 +89,7 @@ class _SignupScreenState extends State<SignupScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(height: size.height * 0.04),
-              Center(
-                child: AuthLogo(fontSize: size.width * 0.18),
-              ),
+              Center(child: AuthLogo(fontSize: size.width * 0.18)),
               SizedBox(height: size.height * 0.04),
               Text(
                 'Get Started',
@@ -101,25 +112,12 @@ class _SignupScreenState extends State<SignupScreen> {
               SizedBox(height: size.height * 0.04),
               AuthTextField(
                 size: size,
-                controller: _nameController,
-                hintText: 'Full Name',
-                textInputAction: TextInputAction.next,
-              ),
-              SizedBox(height: size.height * 0.02),
-              AuthTextField(
-                size: size,
-                controller: _employeeController,
-                hintText: 'Employee ID',
-                textInputAction: TextInputAction.next,
-              ),
-              SizedBox(height: size.height * 0.02),
-              AuthTextField(
-                size: size,
                 controller: _emailController,
                 hintText: 'Email',
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.email],
+                onChanged: (value) => _controller.email = value,
               ),
               SizedBox(height: size.height * 0.02),
               AuthTextField(
@@ -128,6 +126,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 hintText: 'Password',
                 isPassword: true,
                 textInputAction: TextInputAction.next,
+                onChanged: (value) => _controller.password = value,
               ),
               SizedBox(height: size.height * 0.02),
               AuthTextField(
@@ -136,12 +135,16 @@ class _SignupScreenState extends State<SignupScreen> {
                 hintText: 'Confirm Password',
                 isPassword: true,
                 textInputAction: TextInputAction.done,
+                onChanged: (value) => _controller.confirmPassword = value,
               ),
               SizedBox(height: size.height * 0.04),
               AuthPrimaryButton(
                 size: size,
                 label: 'Sign up',
-                onPressed: _submit,
+                onPressed: _controller.canSubmit && !_controller.isBusy
+                    ? _submit
+                    : null,
+                isLoading: _controller.isBusy,
               ),
             ],
           ),
