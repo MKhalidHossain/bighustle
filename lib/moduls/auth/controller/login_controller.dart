@@ -9,10 +9,10 @@ import '../model/login_request_model.dart';
 class LoginsScreenController extends ChangeNotifier {
   final ProcessStatusNotifier processStatusNotifier = ProcessStatusNotifier();
   final SnackbarNotifier snackbarNotifier;
-  String _emailOrId = '';
-  String get emailOrId => _emailOrId;
+  String _email = '';
+  String get email => _email;
 
-  bool get canSubmit => _emailOrId.isNotEmpty && _password.isNotEmpty;
+  bool get canSubmit => _email.isNotEmpty && _password.isNotEmpty;
 
   canLogin() {
     if (canSubmit) {
@@ -22,9 +22,9 @@ class LoginsScreenController extends ChangeNotifier {
     }
   }
   
-  set emailOrId(String value) {
-    if (value != _emailOrId) {
-      _emailOrId = value.trim();
+  set email(String value) {
+    if (value != _email) {
+      _email = value.trim();
       canLogin();
       notifyListeners();
     }
@@ -49,7 +49,7 @@ class LoginsScreenController extends ChangeNotifier {
     
     try {
       final result = await Get.find<AuthInterface>().login(
-        param: LoginRequestModel(emailOrId: emailOrId, password: password),
+        param: LoginRequestModel(email: email, password: password),
       );
       
       return await result.fold(

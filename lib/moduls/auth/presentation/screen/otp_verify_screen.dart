@@ -3,14 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bighustle/core/constants/app_routes.dart';
+import 'package:flutter_bighustle/core/notifiers/snackbar_notifier.dart';
+import 'package:flutter_bighustle/moduls/auth/controller/verify_email_controller.dart';
 import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 
 class OtpVerifyScreen extends StatefulWidget {
-  final String contact;
+  final String email;
 
   const OtpVerifyScreen({
     super.key,
-    required this.contact,
+    required this.email,
   });
 
   @override
@@ -22,6 +24,20 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
   int _resendTime = 45;
   String _otp = '';
   bool _showOtpError = false;
+  late final VerifyEmailController _controller;
+  bool _initialized = false;
+  bool _isLoading = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _controller = VerifyEmailController(SnackbarNotifier(context: context))
+        ..email = widget.email
+        ..purpose = 'reset_password';
+    }
+  }
 
   @override
   void initState() {
@@ -32,6 +48,9 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    if (_initialized) {
+      _controller.dispose();
+    }
     super.dispose();
   }
 
@@ -62,19 +81,23 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
 
     setState(() => _showOtpError = false);
 
-    await showAuthStatusDialog(
-      context,
-      success: true,
-      message: 'Verified successfully.',
+    _controller.otp = _otp;
+    setState(() => _isLoading = true);
+    await _controller.verifyEmail(
+      onSuccess: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.resetPassword,
+          arguments: {
+            'email': widget.email,
+            'otp': _otp,
+          },
+        );
+      },
     );
-    if (!mounted) {
-      return;
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
-    Navigator.pushNamed(
-      context,
-      AppRoutes.resetPassword,
-      arguments: widget.contact,
-    );
   }
 
   @override
@@ -108,7 +131,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
               ),
               SizedBox(height: size.height * 0.015),
               Text(
-                'We have shared a code to your registered email address\n${widget.contact}',
+                'We have shared a code to your registered email address\n${widget.email}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: (size.width * 0.045).clamp(14.0, 18.0),
@@ -165,7 +188,8 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
               AuthPrimaryButton(
                 size: size,
                 label: 'Verify',
-                onPressed: _submit,
+                onPressed: !_isLoading ? _submit : null,
+                isLoading: _isLoading,
               ),
             ],
           ),

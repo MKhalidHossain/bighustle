@@ -6,16 +6,22 @@ class PasswordField extends StatelessWidget {
     required this.hintText,
     required this.isVisible,
     required this.onToggle,
+    this.controller,
+    this.onChanged,
   });
 
   final String hintText;
   final bool isVisible;
   final VoidCallback onToggle;
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       obscureText: !isVisible,
+      onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,

@@ -8,6 +8,7 @@ import '../model/login_request_model.dart';
 import '../model/logout_request_model.dart';
 import '../model/register_request_model.dart' show RegisterRequest;
 import '../model/reset_password_request_model.dart';
+import '../model/change_password_request_model.dart';
 import '../model/verify_email_request_model.dart';
 import '../model/verify_email_register_request_model.dart';
 
@@ -24,5 +25,6 @@ abstract base class AuthInterface extends BaseRepository {
   
   Future<Either<DataCRUDFailure,Success<String>>> resetPassword( {required ResetPasswordRequestModel param});
   Future<Either<DataCRUDFailure,Success<String>>> logout({required LogoutRequestModel param});
+  Future<Either<DataCRUDFailure,Success<String>>> changePassword({required ChangePasswordRequestModel param});
   // Stream<AuthStatus> authStream();
 }

@@ -1,64 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../core/helpers/handle_fold.dart';
 import '../../../core/notifiers/button_status_notifier.dart';
 import '../../../core/notifiers/snackbar_notifier.dart';
 import '../interface/auth_interface.dart';
-import '../model/reset_password_request_model.dart';
+import '../model/change_password_request_model.dart';
 
-class ResetPasswordController extends ChangeNotifier {
+class ChangePasswordController extends ChangeNotifier {
   final ProcessStatusNotifier processStatusNotifier = ProcessStatusNotifier();
   final SnackbarNotifier snackbarNotifier;
-  
-  String _email = '';
-  String _otp = '';
-  String _password = '';
+
+  String _oldPassword = '';
+  String _newPassword = '';
   String _confirmPassword = '';
-  
-  String get email => _email;
-  String get otp => _otp;
-  String get password => _password;
+
+  String get oldPassword => _oldPassword;
+  String get newPassword => _newPassword;
   String get confirmPassword => _confirmPassword;
 
-  ResetPasswordController(this.snackbarNotifier);
+  ChangePasswordController(this.snackbarNotifier);
 
-  bool canReset() {
-    return _email.isNotEmpty &&
-           _otp.isNotEmpty &&
-           _otp.length >= 6 &&
-           _password.isNotEmpty &&
-           _password.length >= 6 &&
-           _confirmPassword.isNotEmpty &&
-           _password == _confirmPassword;
+  bool canChange() {
+    return _oldPassword.isNotEmpty &&
+        _newPassword.isNotEmpty &&
+        _newPassword.length >= 6 &&
+        _confirmPassword.isNotEmpty &&
+        _newPassword == _confirmPassword;
   }
 
   void updateButtonState() {
-    if (canReset()) {
+    if (canChange()) {
       processStatusNotifier.setEnabled();
     } else {
       processStatusNotifier.setDisabled();
     }
   }
 
-  set email(String value) {
-    if (value != _email) {
-      _email = value.trim();
+  set oldPassword(String value) {
+    if (value != _oldPassword) {
+      _oldPassword = value;
       updateButtonState();
       notifyListeners();
     }
   }
 
-  set otp(String value) {
-    if (value != _otp) {
-      _otp = value.trim();
-      updateButtonState();
-      notifyListeners();
-    }
-  }
-
-  set password(String value) {
-    if (value != _password) {
-      _password = value;
+  set newPassword(String value) {
+    if (value != _newPassword) {
+      _newPassword = value;
       updateButtonState();
       notifyListeners();
     }
@@ -72,11 +61,9 @@ class ResetPasswordController extends ChangeNotifier {
     }
   }
 
-  Future<void> resetPassword({
-    required VoidCallback onSuccess,
-  }) async {
-    if (!canReset()) {
-      if (_password != _confirmPassword) {
+  Future<void> changePassword({required VoidCallback onSuccess}) async {
+    if (!canChange()) {
+      if (_newPassword != _confirmPassword) {
         snackbarNotifier.notifyError(message: 'Passwords do not match');
       } else {
         snackbarNotifier.notifyError(
@@ -87,16 +74,12 @@ class ResetPasswordController extends ChangeNotifier {
     }
 
     processStatusNotifier.setLoading();
-    
-    await Future.delayed(const Duration(milliseconds: 500));
-    
+
     await Get.find<AuthInterface>()
-        .resetPassword(
-          param: ResetPasswordRequestModel(
-            email: email,
-            otp: otp,
-            password: password,
-            confirmPassword: confirmPassword,
+        .changePassword(
+          param: ChangePasswordRequestModel(
+            oldPassword: _oldPassword,
+            newPassword: _newPassword,
           ),
         )
         .then((result) {
@@ -105,9 +88,7 @@ class ResetPasswordController extends ChangeNotifier {
         processStatusNotifier: processStatusNotifier,
         successSnackbarNotifier: snackbarNotifier,
         errorSnackbarNotifier: snackbarNotifier,
-        onSuccess: (_) {
-          onSuccess();
-        },
+        onSuccess: (_) => onSuccess(),
       );
     });
   }

@@ -145,12 +145,12 @@ base class ApiEndpoints {
 class _RemoteServer {
   static const String socketUrl = 'https://ursffiver-backend.onrender.com';
 
-  static const String baseUrl = 'https://ursffiver-backend.onrender.com/api/v1';
+  // static const String baseUrl = 'https://ursffiver-backend.onrender.com/api/v1';
 }
 
 class _LocalHostWifi {
   static const String socketUrl = 'http://localhost:5003';
-  static const String baseUrl = 'http://10.10.5.94:5000/api';
+  static const String baseUrl = 'http://10.10.5.94:5000/api/v1';
 }
 
 class _Auth {
@@ -160,10 +160,10 @@ class _Auth {
   static const String signup = '$_authRoute/register';
   static const String logout = '$_authRoute/logout';
   static const String me = '$_authRoute/me';
-  static const String forgetPassword = '$_authRoute/forgot-password';
+  static const String forgetPassword = '$_authRoute/forget';
   static const String refreshToken = '$_authRoute/refresh-token';
-  static const String verifyCode = '$_authRoute/verify-otp';
-  static const String verifyEmail = '$_authRoute/verify-email';
+  static const String verifyCode = '$_authRoute/verify';
+  static const String verifyEmail = '$_authRoute/verify';
   //static const String registerVerify = '$_authRoute/verify-otp';
   static const String changePassword = '$_authRoute/change-password';
   static const String resetPassword = '$_authRoute/reset-password';
