@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/notifiers/snackbar_notifier.dart';
+import '../../model/license_alert_model.dart';
 import '../controller/license_info_controller.dart';
 import '../widget/license_alert_item.dart';
 import '../widget/license_info_card.dart';
@@ -213,12 +214,32 @@ class _LicenseScreenState extends State<LicenseScreen> {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    const LicenseAlertItem(
-                      message: 'Unpaid Ticket',
+                    LicenseAlertItem(
+                      alert: LicenseAlertModel(
+                        id: '',
+                        userId: '',
+                        type: 'license_status',
+                        title: 'Unpaid Ticket',
+                        message: 'Unpaid Ticket',
+                        severity: 'warning',
+                        isRead: false,
+                        createdAt: DateTime.now(),
+                        updatedAt: DateTime.now(),
+                      ),
                       showDivider: true,
                     ),
-                    const LicenseAlertItem(
-                      message: 'Suspend..',
+                    LicenseAlertItem(
+                      alert: LicenseAlertModel(
+                        id: '',
+                        userId: '',
+                        type: 'license_status',
+                        title: 'Suspend..',
+                        message: 'Suspend..',
+                        severity: 'info',
+                        isRead: false,
+                        createdAt: DateTime.now(),
+                        updatedAt: DateTime.now(),
+                      ),
                       showDivider: false,
                     ),
                   ],

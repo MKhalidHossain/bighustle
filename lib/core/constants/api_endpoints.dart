@@ -149,6 +149,9 @@ base class ApiEndpoints {
   // ---------------------- LICENSE -----------------------------
   /// ### get
   static String getLicense = _License._licenseRoute;
+  
+  /// ### get
+  static const String getAlerts = _Alerts.getAlerts;
 }
 
 //arrow360degree@gmail.com
@@ -238,6 +241,12 @@ class _License {
   static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
   static const String create = '$_licenseRoute/create';
   static String update(String userId) => '$_licenseRoute/$userId';
+}
+
+// ---------------------- ALERTS -----------------------------
+class _Alerts {
+  static const String _alertsRoute = '${ApiEndpoints.baseUrl}/alerts';
+  static const String getAlerts = '$_alertsRoute/me';
 }
 
 // ---------------------- RIDE -----------------------------
