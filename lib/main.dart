@@ -117,8 +117,11 @@ class MyApp extends StatelessWidget {
           case AppRoutes.ticket:
             return MaterialPageRoute(builder: (_) => const TicketScreen());
           case AppRoutes.ticketDetails:
+            final ticketId = settings.arguments is String
+                ? settings.arguments as String
+                : '';
             return MaterialPageRoute(
-              builder: (_) => const TicketDetailsScreen(),
+              builder: (_) => TicketDetailsScreen(ticketId: ticketId),
             );
           case AppRoutes.ticketNotifications:
             return MaterialPageRoute(

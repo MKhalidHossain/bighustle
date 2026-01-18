@@ -163,20 +163,19 @@ base class ApiEndpoints {
   static String addTeenDriverPostComment(String postId) =>
       _TeenDriverExperience.addComment(postId);
   /// ### get
-  static String getTeenDriverPostComments(String postId) =>
-      _TeenDriverExperience.getComments(postId);
-  /// ### post
-  static String likeTeenDriverPost(String postId) =>
-      _TeenDriverExperience.likePost(postId);
+  static const String getAlerts = _Alerts.getAlerts;
+
+  // ---------------------- TICKET -----------------------------
+  /// ### get
+  static String getMyTickets({String? status}) => _Ticket.getMyTickets(status: status);
+  
+  /// ### get
+  static String getTicketById(String ticketId) => _Ticket.getTicketById(ticketId);
 }
 
 //arrow360degree@gmail.com
 
-class _RemoteServer {
-  static const String socketUrl = 'https://ursffiver-backend.onrender.com';
 
-  // static const String baseUrl = 'https://ursffiver-backend.onrender.com/api/v1';
-}
 
 class _LocalHostWifi {
   static const String socketUrl = 'http://localhost:5003';
@@ -265,17 +264,18 @@ class _Alerts {
   static const String getAlerts = '$_alertsRoute/me';
 }
 
-class _TeenDriverExperience {
-  static const String _teenDriverExperienceRoute =
-      '${ApiEndpoints.baseUrl}/teen/posts';
-  static const String createExperience = '$_teenDriverExperienceRoute';
-  static const String teenDriverPosts = '$_teenDriverExperienceRoute';
-  static String addComment(String postId) =>
-      '$_teenDriverExperienceRoute/$postId/comments';
-  static String getComments(String postId) =>
-      '$_teenDriverExperienceRoute/$postId/comments';
-  static String likePost(String postId) =>
-      '$_teenDriverExperienceRoute/$postId/like';
+// ---------------------- TICKET -----------------------------
+class _Ticket {
+  static const String _ticketRoute = '${ApiEndpoints.baseUrl}/tickets';
+  static String getMyTickets({String? status}) {
+    final baseUrl = '$_ticketRoute/me';
+    if (status != null) {
+      return '$baseUrl?status=$status';
+    }
+    return baseUrl;
+  }
+  
+  static String getTicketById(String ticketId) => '$_ticketRoute/$ticketId';
 }
 
 // ---------------------- RIDE -----------------------------
