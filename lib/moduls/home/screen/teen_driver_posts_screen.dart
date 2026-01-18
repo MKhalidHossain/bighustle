@@ -210,13 +210,36 @@ class _PostCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                post.title,
-                style: TextStyle(
-                  fontSize: (size.width * 0.048).clamp(16.0, 20.0),
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF111111),
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      post.title,
+                      style: TextStyle(
+                        fontSize: (size.width * 0.048).clamp(16.0, 20.0),
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF111111),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF2FF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${post.commentsCount} comments',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.035).clamp(11.0, 13.0),
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF3F76F6),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: size.height * 0.012),
               ClipRRect(
