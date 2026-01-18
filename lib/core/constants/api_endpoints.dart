@@ -152,15 +152,18 @@ base class ApiEndpoints {
   
   /// ### get
   static const String getAlerts = _Alerts.getAlerts;
+
+  // ---------------------- TICKET -----------------------------
+  /// ### get
+  static String getMyTickets({String? status}) => _Ticket.getMyTickets(status: status);
+  
+  /// ### get
+  static String getTicketById(String ticketId) => _Ticket.getTicketById(ticketId);
 }
 
 //arrow360degree@gmail.com
 
-class _RemoteServer {
-  static const String socketUrl = 'https://ursffiver-backend.onrender.com';
 
-  // static const String baseUrl = 'https://ursffiver-backend.onrender.com/api/v1';
-}
 
 class _LocalHostWifi {
   static const String socketUrl = 'http://localhost:5003';
@@ -247,6 +250,20 @@ class _License {
 class _Alerts {
   static const String _alertsRoute = '${ApiEndpoints.baseUrl}/alerts';
   static const String getAlerts = '$_alertsRoute/me';
+}
+
+// ---------------------- TICKET -----------------------------
+class _Ticket {
+  static const String _ticketRoute = '${ApiEndpoints.baseUrl}/tickets';
+  static String getMyTickets({String? status}) {
+    final baseUrl = '$_ticketRoute/me';
+    if (status != null) {
+      return '$baseUrl?status=$status';
+    }
+    return baseUrl;
+  }
+  
+  static String getTicketById(String ticketId) => '$_ticketRoute/$ticketId';
 }
 
 // ---------------------- RIDE -----------------------------
