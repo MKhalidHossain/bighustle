@@ -30,11 +30,31 @@ class LicenseResponseModel {
   });
 
   factory LicenseResponseModel.fromJson(Map<String, dynamic> json) {
+    // Helper function to extract URL from photo object or string
+    String extractPhotoUrl(dynamic photoData) {
+      if (photoData == null) return '';
+      
+      // If it's already a string, return it
+      if (photoData is String) {
+        return photoData.trim();
+      }
+      
+      // If it's a Map/object, extract the 'url' property
+      if (photoData is Map) {
+        final url = photoData['url'];
+        if (url is String) {
+          return url.trim();
+        }
+      }
+      
+      return '';
+    }
+
     return LicenseResponseModel(
       id: json['_id']?.toString() ?? '',
       userId: json['userId']?.toString() ?? '',
       fullName: json['fullName']?.toString() ?? '',
-      userPhoto: json['userPhoto']?.toString() ?? '',
+      userPhoto: extractPhotoUrl(json['userPhoto']),
       licenseNumber: json['licenseNumber']?.toString() ?? '',
       state: json['state']?.toString() ?? '',
       dateOfBirth: json['dateOfBirth'] != null
@@ -44,7 +64,7 @@ class LicenseResponseModel {
           ? DateTime.tryParse(json['expirationDate'].toString())
           : null,
       licenseClass: json['licenseClass']?.toString() ?? '',
-      licensePhoto: json['licensePhoto']?.toString() ?? '',
+      licensePhoto: extractPhotoUrl(json['licensePhoto']),
       licenseStatus: json['licenseStatus']?.toString() ?? '',
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'].toString())

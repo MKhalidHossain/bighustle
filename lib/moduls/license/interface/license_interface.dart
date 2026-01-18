@@ -12,4 +12,9 @@ abstract base class LicenseInterface extends BaseRepository {
   });
 
   Future<Either<DataCRUDFailure, Success<List<LicenseResponseModel>>>> getLicense();
+  
+  Future<Either<DataCRUDFailure, Success<String>>> updateLicense({
+    required String userId,
+    required LicenseCreateRequestModel param,
+  });
 }

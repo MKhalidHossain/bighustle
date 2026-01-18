@@ -91,4 +91,61 @@ final class LicenseInterfaceImpl extends LicenseInterface {
       },
     );
   }
+
+  @override
+  Future<Either<DataCRUDFailure, Success<String>>> updateLicense({
+    required String userId,
+    required LicenseCreateRequestModel param,
+  }) async {
+    return asyncTryCatch(
+      tryFunc: () async {
+        final formDataMap = <String, dynamic>{
+          'name': param.fullName,
+          'licenseNumber': param.licenseNumber,
+          'state': param.state,
+          'dateOfBirth': param.dateOfBirth,
+          'expirationDate': param.expiryDate,
+          'licenseClass': param.licenseClass,
+        };
+
+        // Add files only if they are valid file paths (not empty strings)
+        if (param.userPhoto.isNotEmpty && 
+            !param.userPhoto.startsWith('http') &&
+            param.userPhoto.contains('/')) {
+          formDataMap['userPhoto'] = await MultipartFile.fromFile(
+            param.userPhoto,
+            filename: param.userPhoto.split('/').last,
+          );
+        }
+
+        if (param.licensePhoto.isNotEmpty && 
+            !param.licensePhoto.startsWith('http') &&
+            param.licensePhoto.contains('/')) {
+          formDataMap['licensePhoto'] = await MultipartFile.fromFile(
+            param.licensePhoto,
+            filename: param.licensePhoto.split('/').last,
+          );
+        }
+
+        final formData = FormData.fromMap(formDataMap);
+        
+        final response = await appPigeon.put(
+          ApiEndpoints.updateLicense(userId),
+          data: formData,
+          options: Options(contentType: 'multipart/form-data'),
+        );
+        
+        final responseBody = response.data is Map
+            ? Map<String, dynamic>.from(response.data)
+            : <String, dynamic>{};
+        final message =
+            responseBody['message']?.toString() ?? 'License updated successfully';
+
+        return Success(
+          message: message,
+          data: message,
+        );
+      },
+    );
+  }
 }
