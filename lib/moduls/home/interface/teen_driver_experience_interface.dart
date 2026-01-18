@@ -12,6 +12,6 @@ abstract base class TeenDriverExperienceInterface extends BaseRepository {
     required TeenDriverExperienceRequestModel param,
   });
 
-  Future<Either<DataCRUDFailure, Success<List<TeenDriverExperienceResponseModel>>>>
-      getTeenDriverPosts();
+  Future<Either<DataCRUDFailure,
+      Success<List<TeenDriverExperienceResponseModel>>>> getTeenDriverPosts();
 }
