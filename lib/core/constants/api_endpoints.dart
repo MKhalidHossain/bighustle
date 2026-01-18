@@ -146,6 +146,14 @@ base class ApiEndpoints {
   // ---------------------- LICENSE -----------------------------
   /// ### get
   static String getLicense = _License._licenseRoute;
+
+  // ---------------------- TEEN DRIVER EXPERIENCE -----------------------------
+  /// ### post
+  static const String createTeenDriverExperience =
+      _TeenDriverExperience.createExperience;
+  /// ### get
+  static const String getTeenDriverPosts =
+      _TeenDriverExperience.teenDriverPosts;
 }
 
 //arrow360degree@gmail.com
@@ -158,7 +166,7 @@ class _RemoteServer {
 
 class _LocalHostWifi {
   static const String socketUrl = 'http://localhost:5003';
-  static const String baseUrl = 'http://10.10.5.94:5000/api/v1';
+  static const String baseUrl = 'http://10.10.5.95:5000/api/v1';
 }
 
 class _Auth {
@@ -234,6 +242,13 @@ class _User {
 class _License {
   static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
   static const String create = '$_licenseRoute/create';
+}
+
+class _TeenDriverExperience {
+  static const String _teenDriverExperienceRoute =
+      '${ApiEndpoints.baseUrl}/teen/posts';
+  static const String createExperience = '$_teenDriverExperienceRoute';
+  static const String teenDriverPosts = '$_teenDriverExperienceRoute';
 }
 
 // ---------------------- RIDE -----------------------------
