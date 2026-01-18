@@ -1,17 +1,88 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../../../core/notifiers/snackbar_notifier.dart';
+import '../../../../core/services/app_pigeon/app_pigeon.dart';
+import '../../implement/license_interface_impl.dart';
+import '../../interface/license_interface.dart';
+import '../../model/license_alert_model.dart';
 import '../widget/license_alert_item.dart';
 
-class LicenseAlertsScreen extends StatelessWidget {
+class LicenseAlertsScreen extends StatefulWidget {
   const LicenseAlertsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final alerts = List.generate(
-      7,
-      (_) => 'Your license status just updated — please check the latest details.',
-    );
+  State<LicenseAlertsScreen> createState() => _LicenseAlertsScreenState();
+}
 
+class _LicenseAlertsScreenState extends State<LicenseAlertsScreen> {
+  bool _isLoading = true;
+  List<LicenseAlertModel> _alerts = [];
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _fetchAlerts();
+    }
+  }
+
+  Future<void> _fetchAlerts() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      if (!Get.isRegistered<LicenseInterface>()) {
+        Get.put<LicenseInterface>(
+          LicenseInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
+        );
+      }
+
+      final licenseInterface = Get.find<LicenseInterface>();
+      final result = await licenseInterface.getAlerts();
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          final snackbarNotifier = SnackbarNotifier(context: context);
+          snackbarNotifier.notifyError(
+            message: failure.uiMessage.isNotEmpty
+                ? failure.uiMessage
+                : 'Failed to load alerts',
+          );
+          setState(() {
+            _isLoading = false;
+            _alerts = [];
+          });
+        },
+        (success) {
+          setState(() {
+            _isLoading = false;
+            _alerts = success.data ?? [];
+          });
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      final snackbarNotifier = SnackbarNotifier(context: context);
+      snackbarNotifier.notifyError(
+        message: 'An error occurred while loading alerts',
+      );
+      setState(() {
+        _isLoading = false;
+        _alerts = [];
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
       body: SafeArea(
@@ -54,15 +125,29 @@ class LicenseAlertsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: alerts.length,
-                        itemBuilder: (context, index) {
-                          return LicenseAlertItem(
-                            message: alerts[index],
-                            showDivider: index != alerts.length - 1,
-                          );
-                        },
-                      ),
+                      child: _isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : _alerts.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'No alerts available',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFF999999),
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: _alerts.length,
+                                  itemBuilder: (context, index) {
+                                    return LicenseAlertItem(
+                                      alert: _alerts[index],
+                                      showDivider: index != _alerts.length - 1,
+                                    );
+                                  },
+                                ),
                     ),
                   ],
                 ),

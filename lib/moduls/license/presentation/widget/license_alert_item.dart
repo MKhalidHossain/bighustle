@@ -1,14 +1,31 @@
 import 'package:flutter/material.dart';
 
+import '../../model/license_alert_model.dart';
+
 class LicenseAlertItem extends StatelessWidget {
-  final String message;
+  final LicenseAlertModel alert;
   final bool showDivider;
 
   const LicenseAlertItem({
     super.key,
-    required this.message,
+    required this.alert,
     this.showDivider = true,
   });
+
+  Color _getSeverityColor() {
+    switch (alert.severity.toLowerCase()) {
+      case 'error':
+      case 'danger':
+        return Colors.red;
+      case 'warning':
+        return const Color(0xFFFFC107);
+      case 'success':
+        return Colors.green;
+      case 'info':
+      default:
+        return const Color(0xFF2196F3);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,22 +37,45 @@ class LicenseAlertItem extends StatelessWidget {
             Container(
               width: 18,
               height: 18,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFC107),
+              decoration: BoxDecoration(
+                color: _getSeverityColor(),
                 shape: BoxShape.circle,
               ),
               child: const Center(
                 child: Text(
                   '!',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(fontSize: 13),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (alert.title.isNotEmpty)
+                    Text(
+                      alert.title,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  if (alert.title.isNotEmpty && alert.message.isNotEmpty)
+                    const SizedBox(height: 4),
+                  if (alert.message.isNotEmpty)
+                    Text(
+                      alert.message,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF666666),
+                      ),
+                    ),
+                ],
               ),
             ),
           ],

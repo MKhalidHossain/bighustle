@@ -92,6 +92,9 @@ base class ApiEndpoints {
   // ---------------------- LICENSE -----------------------------
   /// ### post
   static const String createLicense = _License.create;
+  
+  /// ### put
+  static String updateLicense(String userId) => _License.update(userId);
 
   // ---------------------- RIDE -----------------------------
   /// ### post
@@ -177,7 +180,7 @@ class _RemoteServer {
 
 class _LocalHostWifi {
   static const String socketUrl = 'http://localhost:5003';
-  static const String baseUrl = 'http://10.10.5.94:5000/api/v1';
+  static const String baseUrl = 'http://10.10.5.95:5000/api/v1';
 }
 
 class _Auth {
@@ -253,6 +256,13 @@ class _User {
 class _License {
   static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
   static const String create = '$_licenseRoute/create';
+  static String update(String userId) => '$_licenseRoute/$userId';
+}
+
+// ---------------------- ALERTS -----------------------------
+class _Alerts {
+  static const String _alertsRoute = '${ApiEndpoints.baseUrl}/alerts';
+  static const String getAlerts = '$_alertsRoute/me';
 }
 
 class _TeenDriverExperience {

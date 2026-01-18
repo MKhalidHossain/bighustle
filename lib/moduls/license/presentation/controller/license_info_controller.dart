@@ -17,6 +17,9 @@ class LicenseInfo {
   final String expireDate;
   final String userPhoto;
   final String licensePhoto;
+  final String rawDateOfBirth; // ISO format for API
+  final String rawExpireDate; // ISO format for API
+  final String licenseClass; // For API
 
   const LicenseInfo({
     required this.status,
@@ -29,6 +32,9 @@ class LicenseInfo {
     required this.expireDate,
     required this.userPhoto,
     required this.licensePhoto,
+    required this.rawDateOfBirth,
+    required this.rawExpireDate,
+    required this.licenseClass,
   });
 
   LicenseInfo copyWith({
@@ -42,6 +48,9 @@ class LicenseInfo {
     String? expireDate,
     String? userPhoto,
     String? licensePhoto,
+    String? rawDateOfBirth,
+    String? rawExpireDate,
+    String? licenseClass,
   }) {
     return LicenseInfo(
       status: status ?? this.status,
@@ -54,6 +63,9 @@ class LicenseInfo {
       expireDate: expireDate ?? this.expireDate,
       userPhoto: userPhoto ?? this.userPhoto,
       licensePhoto: licensePhoto ?? this.licensePhoto,
+      rawDateOfBirth: rawDateOfBirth ?? this.rawDateOfBirth,
+      rawExpireDate: rawExpireDate ?? this.rawExpireDate,
+      licenseClass: licenseClass ?? this.licenseClass,
     );
   }
 
@@ -128,6 +140,17 @@ class LicenseInfo {
       expireDateFormatted = '$day${_getDaySuffix(day)} $month, $year';
     }
 
+    // Get raw ISO date strings for API calls
+    String rawDateOfBirth = '';
+    if (response.dateOfBirth != null) {
+      rawDateOfBirth = response.dateOfBirth!.toIso8601String();
+    }
+    
+    String rawExpireDate = '';
+    if (response.expiryDate != null) {
+      rawExpireDate = response.expiryDate!.toIso8601String();
+    }
+
     return LicenseInfo(
       status: status,
       validity: validity,
@@ -137,8 +160,11 @@ class LicenseInfo {
       state: response.state,
       dateOfBirth: dateOfBirthFormatted,
       expireDate: expireDateFormatted,
-      userPhoto: response.userPhoto.trim(),
-      licensePhoto: response.licensePhoto.trim(),
+      userPhoto: response.userPhoto,
+      licensePhoto: response.licensePhoto,
+      rawDateOfBirth: rawDateOfBirth,
+      rawExpireDate: rawExpireDate,
+      licenseClass: response.licenseClass,
     );
   }
 
@@ -172,6 +198,9 @@ class LicenseInfoController {
       expireDate: 'N/A',
       userPhoto: '',
       licensePhoto: '',
+      rawDateOfBirth: '',
+      rawExpireDate: '',
+      licenseClass: '',
     ),
   );
 
