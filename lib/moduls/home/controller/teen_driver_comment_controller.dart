@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/notifiers/snackbar_notifier.dart';
+import '../../../core/services/app_pigeon/app_pigeon.dart';
 import '../interface/teen_driver_experience_interface.dart';
 import '../model/teen_driver_comment_request_model.dart';
 import '../model/teen_driver_comment_response_model.dart';
@@ -14,11 +15,19 @@ class TeenDriverCommentController extends ChangeNotifier {
   String _text = '';
   bool _isSubmitting = false;
   bool _isLoading = false;
+  bool _isLiking = false;
+  bool _isLiked = false;
+  int _likesCount = 0;
+  String _likeUserName = '';
   final List<TeenDriverCommentResponseModel> _comments = [];
 
   String get text => _text;
   bool get isSubmitting => _isSubmitting;
   bool get isLoading => _isLoading;
+  bool get isLiking => _isLiking;
+  bool get isLiked => _isLiked;
+  int get likesCount => _likesCount;
+  String get likeUserName => _likeUserName;
   bool get canSubmit => _text.isNotEmpty && !_isSubmitting;
   List<TeenDriverCommentResponseModel> get comments =>
       List.unmodifiable(_comments);
@@ -39,6 +48,7 @@ class TeenDriverCommentController extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
+    final currentUser = await _getCurrentUserInfo();
     final result =
         await Get.find<TeenDriverExperienceInterface>().getTeenDriverPosts();
 
@@ -56,6 +66,15 @@ class TeenDriverCommentController extends ChangeNotifier {
         for (final post in posts) {
           if (post.id == postId.trim()) {
             postComments = post.comments;
+            _likesCount = post.likesCount;
+            if (currentUser.id.isNotEmpty &&
+                post.likes.contains(currentUser.id)) {
+              _isLiked = true;
+              _likeUserName =
+                  currentUser.name.isNotEmpty ? currentUser.name : 'You';
+            } else {
+              _isLiked = false;
+            }
             break;
           }
         }
@@ -110,4 +129,77 @@ class TeenDriverCommentController extends ChangeNotifier {
 
     return createdComment;
   }
+
+  Future<void> likePost({required String postId}) async {
+    if (_isLiking) {
+      return;
+    }
+    if (_isLiked) {
+      return;
+    }
+    if (postId.trim().isEmpty) {
+      snackbarNotifier.notifyError(message: 'Post id is missing.');
+      return;
+    }
+
+    _isLiking = true;
+    notifyListeners();
+
+    final currentUser = await _getCurrentUserInfo();
+    final result = await Get.find<TeenDriverExperienceInterface>()
+        .likeTeenDriverPost(postId: postId.trim());
+
+    result.fold(
+      (failure) {
+        snackbarNotifier.notifyError(
+          message:
+              failure.uiMessage.isNotEmpty ? failure.uiMessage : 'Like failed',
+        );
+      },
+      (success) {
+        _likesCount = success.data ?? _likesCount;
+        _isLiked = true;
+        _likeUserName =
+            currentUser.name.isNotEmpty ? currentUser.name : 'You';
+      },
+    );
+
+    _isLiking = false;
+    notifyListeners();
+  }
+
+  Future<_UserSnapshot> _getCurrentUserInfo() async {
+    try {
+      final appPigeon = Get.find<AppPigeon>();
+      final status = await appPigeon.currentAuth();
+      if (status is Authenticated) {
+        final data = status.auth.data;
+        if (data is Map) {
+          final userMap =
+              data['user'] is Map ? Map<String, dynamic>.from(data['user']) : null;
+          String readString(dynamic value) => value?.toString() ?? '';
+          final id = readString(
+            userMap?['_id'] ??
+                userMap?['id'] ??
+                userMap?['userId'] ??
+                data['_id'] ??
+                data['id'] ??
+                data['userId'],
+          );
+          final name = readString(
+            userMap?['name'] ?? data['name'] ?? data['fullName'],
+          );
+          return _UserSnapshot(id: id, name: name);
+        }
+      }
+    } catch (_) {}
+    return const _UserSnapshot(id: '', name: '');
+  }
+}
+
+class _UserSnapshot {
+  final String id;
+  final String name;
+
+  const _UserSnapshot({required this.id, required this.name});
 }

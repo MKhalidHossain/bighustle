@@ -241,6 +241,25 @@ class _PostCard extends StatelessWidget {
                   ),
                 ],
               ),
+              SizedBox(height: size.height * 0.008),
+              Row(
+                children: [
+                  Icon(
+                    Icons.favorite,
+                    size: (size.width * 0.04).clamp(14.0, 18.0),
+                    color: const Color(0xFFE53935),
+                  ),
+                  SizedBox(width: size.width * 0.015),
+                  Text(
+                    '${post.likesCount} likes',
+                    style: TextStyle(
+                      fontSize: (size.width * 0.04).clamp(12.0, 16.0),
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF444444),
+                    ),
+                  ),
+                ],
+              ),
               SizedBox(height: size.height * 0.012),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),

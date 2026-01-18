@@ -13,6 +13,7 @@ class TeenDriverExperienceResponseModel {
   final int commentsCount;
   final int likesCount;
   final List<TeenDriverCommentResponseModel> comments;
+  final List<String> likes;
 
   TeenDriverExperienceResponseModel({
     required this.id,
@@ -27,6 +28,7 @@ class TeenDriverExperienceResponseModel {
     required this.commentsCount,
     required this.likesCount,
     required this.comments,
+    required this.likes,
   });
 
   factory TeenDriverExperienceResponseModel.fromJson(
@@ -56,7 +58,7 @@ class TeenDriverExperienceResponseModel {
     final commentsData = json['comments'] is List
         ? List<dynamic>.from(json['comments'])
         : <dynamic>[];
-    final likes =
+    final likesData =
         json['likes'] is List ? List<dynamic>.from(json['likes']) : <dynamic>[];
     final comments = commentsData
         .map((item) => TeenDriverCommentResponseModel.fromJson(
@@ -78,8 +80,18 @@ class TeenDriverExperienceResponseModel {
           : null,
       version: json['__v'] is num ? (json['__v'] as num).toInt() : 0,
       commentsCount: comments.length,
-      likesCount: likes.length,
+      likesCount: likesData.length,
       comments: comments,
+      likes: likesData
+          .map((item) {
+            if (item is Map) {
+              final id = item['_id'] ?? item['id'] ?? item['userId'];
+              return id?.toString() ?? '';
+            }
+            return item.toString();
+          })
+          .where((id) => id.isNotEmpty)
+          .toList(),
     );
   }
 }

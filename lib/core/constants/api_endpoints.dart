@@ -162,6 +162,9 @@ base class ApiEndpoints {
   /// ### get
   static String getTeenDriverPostComments(String postId) =>
       _TeenDriverExperience.getComments(postId);
+  /// ### post
+  static String likeTeenDriverPost(String postId) =>
+      _TeenDriverExperience.likePost(postId);
 }
 
 //arrow360degree@gmail.com
@@ -261,6 +264,8 @@ class _TeenDriverExperience {
       '$_teenDriverExperienceRoute/$postId/comments';
   static String getComments(String postId) =>
       '$_teenDriverExperienceRoute/$postId/comments';
+  static String likePost(String postId) =>
+      '$_teenDriverExperienceRoute/$postId/like';
 }
 
 // ---------------------- RIDE -----------------------------

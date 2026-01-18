@@ -114,6 +114,29 @@ class _CommunityScreenState extends State<CommunityScreen> {
     );
   }
 
+  String _likeMessage({
+    required int likesCount,
+    required bool isLiked,
+    required String likeUserName,
+  }) {
+    if (likesCount <= 0) {
+      return 'Be the first to like this post';
+    }
+    if (isLiked) {
+      if (likesCount == 1) {
+        final displayName = likeUserName.isNotEmpty ? likeUserName : 'You';
+        return '$displayName liked this post';
+      }
+      final displayName = likeUserName.isNotEmpty ? likeUserName : 'You';
+      return '$displayName and ${likesCount - 1} others liked this post';
+    }
+    return '$likesCount people liked this post';
+  }
+
+  Future<void> _likePost() async {
+    await _controller.likePost(postId: widget.postId.trim());
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -124,6 +147,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
         _initialized ? _controller.canSubmit && hasPostId : false;
     final isLoading = _initialized ? _controller.isLoading : false;
     final comments = _initialized ? _controller.comments : [];
+    final likesCount = _initialized ? _controller.likesCount : 0;
+    final isLiked = _initialized ? _controller.isLiked : false;
+    final isLiking = _initialized ? _controller.isLiking : false;
+    final likeUserName = _initialized ? _controller.likeUserName : '';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
@@ -195,23 +222,31 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        width: size.width * 0.09,
-                        height: size.width * 0.09,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF666666),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.favorite_border,
-                          color: Colors.white,
-                          size: 18,
+                      InkWell(
+                        borderRadius: BorderRadius.circular(size.width * 0.06),
+                        onTap: hasPostId && !isLiking ? _likePost : null,
+                        child: Container(
+                          width: size.width * 0.09,
+                          height: size.width * 0.09,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF666666),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isLiked ? Icons.favorite : Icons.favorite_border,
+                            color: isLiked ? Colors.red : Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                       SizedBox(width: size.width * 0.03),
                       Expanded(
                         child: Text(
-                          'Rosy, Mark & Maria liked the live-stream',
+                          _likeMessage(
+                            likesCount: likesCount,
+                            isLiked: isLiked,
+                            likeUserName: likeUserName,
+                          ),
                           style: TextStyle(
                             fontSize: (size.width * 0.04).clamp(12.0, 16.0),
                             fontWeight: FontWeight.w600,

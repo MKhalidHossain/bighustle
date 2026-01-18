@@ -143,4 +143,33 @@ final class TeenDriverExperienceInterfaceImpl
       },
     );
   }
+
+  @override
+  Future<Either<DataCRUDFailure, Success<int>>> likeTeenDriverPost({
+    required String postId,
+  }) async {
+    return asyncTryCatch(
+      tryFunc: () async {
+        final response = await appPigeon.post(
+          ApiEndpoints.likeTeenDriverPost(postId),
+        );
+        final responseBody = response.data is Map
+            ? Map<String, dynamic>.from(response.data)
+            : <String, dynamic>{};
+        final responseData = responseBody['data'];
+        final payload = responseData is Map
+            ? Map<String, dynamic>.from(responseData)
+            : <String, dynamic>{};
+        final likesCount = payload['likesCount'] is num
+            ? (payload['likesCount'] as num).toInt()
+            : int.tryParse(payload['likesCount']?.toString() ?? '') ?? 0;
+        final message = responseBody['message']?.toString() ?? 'Post liked';
+
+        return Success(
+          message: message,
+          data: likesCount,
+        );
+      },
+    );
+  }
 }

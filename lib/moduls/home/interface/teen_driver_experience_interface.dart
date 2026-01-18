@@ -27,4 +27,8 @@ abstract base class TeenDriverExperienceInterface extends BaseRepository {
       getTeenDriverPostComments({
     required String postId,
   });
+
+  Future<Either<DataCRUDFailure, Success<int>>> likeTeenDriverPost({
+    required String postId,
+  });
 }
