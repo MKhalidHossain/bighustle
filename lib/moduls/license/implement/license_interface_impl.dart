@@ -6,6 +6,7 @@ import '../../../core/api_handler/success.dart';
 import '../../../core/constants/api_endpoints.dart';
 import '../../../core/services/app_pigeon/app_pigeon.dart';
 import '../interface/license_interface.dart';
+import '../model/license_alert_model.dart';
 import '../model/license_create_request_model.dart';
 import '../model/license_response_model.dart';
 
@@ -144,6 +145,39 @@ final class LicenseInterfaceImpl extends LicenseInterface {
         return Success(
           message: message,
           data: message,
+        );
+      },
+    );
+  }
+
+  @override
+  Future<Either<DataCRUDFailure, Success<List<LicenseAlertModel>>>> getAlerts() async {
+    return asyncTryCatch(
+      tryFunc: () async {
+        final response = await appPigeon.get(ApiEndpoints.getAlerts);
+        final responseBody = response.data is Map
+            ? Map<String, dynamic>.from(response.data)
+            : <String, dynamic>{};
+        final responseData = responseBody["data"];
+        
+        if (responseData == null) {
+          return Success(
+            message: responseBody['message']?.toString() ?? 'No alerts found',
+            data: <LicenseAlertModel>[],
+          );
+        }
+
+        List<LicenseAlertModel> alerts = [];
+        if (responseData is List) {
+          alerts = responseData
+              .map((item) => LicenseAlertModel.fromJson(
+                  Map<String, dynamic>.from(item)))
+              .toList();
+        }
+
+        return Success(
+          message: responseBody['message']?.toString() ?? 'Alerts fetched successfully',
+          data: alerts,
         );
       },
     );
