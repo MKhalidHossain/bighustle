@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+
+import 'package:flutter_bighustle/core/notifiers/snackbar_notifier.dart';
+import 'package:flutter_bighustle/core/services/app_pigeon/app_pigeon.dart';
+import 'package:flutter_bighustle/moduls/home/controller/teen_driver_experience_controller.dart';
+import 'package:flutter_bighustle/moduls/home/implement/teen_driver_experience_interface_impl.dart';
+import 'package:flutter_bighustle/moduls/home/interface/teen_driver_experience_interface.dart';
 
 class AddTeenDriverExperienceScreen extends StatefulWidget {
   const AddTeenDriverExperienceScreen({super.key});
@@ -19,13 +26,43 @@ class _AddTeenDriverExperienceScreenState
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _fileController = TextEditingController();
+  late final TeenDriverExperienceController _controller;
+  bool _initialized = false;
+  bool _isSubmitting = false;
+
+  void _onControllerUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
     _fileController.dispose();
+    if (_initialized) {
+      _controller.removeListener(_onControllerUpdate);
+      _controller.dispose();
+    }
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      if (!Get.isRegistered<TeenDriverExperienceInterface>()) {
+        Get.put<TeenDriverExperienceInterface>(
+          TeenDriverExperienceInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
+        );
+      }
+      _controller = TeenDriverExperienceController(
+        SnackbarNotifier(context: context),
+      );
+      _controller.addListener(_onControllerUpdate);
+    }
   }
 
   Future<void> _pickImage() async {
@@ -36,29 +73,30 @@ class _AddTeenDriverExperienceScreenState
     if (pickedFile == null) {
       return;
     }
+    final fileName = pickedFile.name.isNotEmpty
+        ? pickedFile.name
+        : pickedFile.path.split('/').last;
     setState(() {
-      _fileController.text = pickedFile.name;
+      _fileController.text = fileName;
     });
+    _controller.mediaPath = pickedFile.path;
   }
 
-  void _submit() {
-    final title = _titleController.text.trim();
-    final description = _descriptionController.text.trim();
-    final fileName = _fileController.text.trim();
-
-    if (title.isEmpty || description.isEmpty || fileName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please complete all fields.')),
-      );
+  Future<void> _submit() async {
+    setState(() => _isSubmitting = true);
+    final success = await _controller.submit();
+    if (!mounted) {
       return;
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Teen driver experience submitted.')),
-    );
-    _titleController.clear();
-    _descriptionController.clear();
-    _fileController.clear();
+    setState(() => _isSubmitting = false);
+    if (success) {
+      _titleController.clear();
+      _descriptionController.clear();
+      _fileController.clear();
+      _controller.title = '';
+      _controller.description = '';
+      _controller.mediaPath = '';
+    }
   }
 
   InputDecoration _inputDecoration(String hintText) {
@@ -138,6 +176,7 @@ class _AddTeenDriverExperienceScreenState
                     SizedBox(height: size.height * 0.01),
                     TextField(
                       controller: _titleController,
+                      onChanged: (value) => _controller.title = value,
                       decoration: _inputDecoration('Write here'),
                     ),
                     SizedBox(height: size.height * 0.02),
@@ -154,6 +193,7 @@ class _AddTeenDriverExperienceScreenState
                       controller: _descriptionController,
                       maxLines: 8,
                       minLines: 6,
+                      onChanged: (value) => _controller.description = value,
                       decoration: _inputDecoration('Write here'),
                     ),
                     SizedBox(height: size.height * 0.02),
@@ -196,7 +236,8 @@ class _AddTeenDriverExperienceScreenState
                 width: double.infinity,
                 height: (size.height * 0.07).clamp(48.0, 58.0),
                 child: ElevatedButton(
-                  onPressed: _submit,
+                  onPressed:
+                      _controller.canSubmit && !_isSubmitting ? _submit : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _primaryBlue,
                     foregroundColor: Colors.white,
@@ -204,13 +245,25 @@ class _AddTeenDriverExperienceScreenState
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    'Submit',
-                    style: TextStyle(
-                      fontSize: (size.width * 0.05).clamp(16.0, 20.0),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          'Submit',
+                          style: TextStyle(
+                            fontSize:
+                                (size.width * 0.05).clamp(16.0, 20.0),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ),

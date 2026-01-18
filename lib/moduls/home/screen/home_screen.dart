@@ -184,7 +184,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     iconBackground: const Color(0xFFFFF4DB),
                     onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.community);
+                      Navigator.pushNamed(context, AppRoutes.teenDriverPosts);
                     },
                   ),
 

@@ -149,9 +149,25 @@ base class ApiEndpoints {
   // ---------------------- LICENSE -----------------------------
   /// ### get
   static String getLicense = _License._licenseRoute;
-  
+
+  // ---------------------- TEEN DRIVER EXPERIENCE -----------------------------
+  /// ### post
+  static const String createTeenDriverExperience =
+      _TeenDriverExperience.createExperience;
+
   /// ### get
-  static const String getAlerts = _Alerts.getAlerts;
+  static const String getTeenDriverPosts =
+      _TeenDriverExperience.teenDriverPosts;
+
+  /// ### post
+  static String addTeenDriverPostComment(String postId) =>
+      _TeenDriverExperience.addComment(postId);
+  /// ### get
+  static String getTeenDriverPostComments(String postId) =>
+      _TeenDriverExperience.getComments(postId);
+  /// ### post
+  static String likeTeenDriverPost(String postId) =>
+      _TeenDriverExperience.likePost(postId);
 }
 
 //arrow360degree@gmail.com
@@ -247,6 +263,19 @@ class _License {
 class _Alerts {
   static const String _alertsRoute = '${ApiEndpoints.baseUrl}/alerts';
   static const String getAlerts = '$_alertsRoute/me';
+}
+
+class _TeenDriverExperience {
+  static const String _teenDriverExperienceRoute =
+      '${ApiEndpoints.baseUrl}/teen/posts';
+  static const String createExperience = '$_teenDriverExperienceRoute';
+  static const String teenDriverPosts = '$_teenDriverExperienceRoute';
+  static String addComment(String postId) =>
+      '$_teenDriverExperienceRoute/$postId/comments';
+  static String getComments(String postId) =>
+      '$_teenDriverExperienceRoute/$postId/comments';
+  static String likePost(String postId) =>
+      '$_teenDriverExperienceRoute/$postId/like';
 }
 
 // ---------------------- RIDE -----------------------------
