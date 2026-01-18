@@ -8,6 +8,7 @@ import '../controller/teen_driver_posts_controller.dart';
 import '../implement/teen_driver_experience_interface_impl.dart';
 import '../interface/teen_driver_experience_interface.dart';
 import '../model/teen_driver_experience_response_model.dart';
+import 'community_screen.dart';
 
 class TeenDriverPostsScreen extends StatefulWidget {
   const TeenDriverPostsScreen({super.key});
@@ -123,10 +124,12 @@ class _TeenDriverPostsScreenState extends State<TeenDriverPostsScreen> {
                                   size: size,
                                   isValidImageUrl: _isValidImageUrl,
                                   onTap: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content:
-                                              Text('Opened ${post.title}')),
+                                    debugPrint('Teen post id: ${post.id}');
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            CommunityScreen(postId: post.id),
+                                      ),
                                     );
                                   },
                                 );

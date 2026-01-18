@@ -1,3 +1,5 @@
+import 'teen_driver_comment_response_model.dart';
+
 class TeenDriverExperienceResponseModel {
   final String id;
   final String authorId;
@@ -10,6 +12,7 @@ class TeenDriverExperienceResponseModel {
   final int version;
   final int commentsCount;
   final int likesCount;
+  final List<TeenDriverCommentResponseModel> comments;
 
   TeenDriverExperienceResponseModel({
     required this.id,
@@ -23,6 +26,7 @@ class TeenDriverExperienceResponseModel {
     required this.version,
     required this.commentsCount,
     required this.likesCount,
+    required this.comments,
   });
 
   factory TeenDriverExperienceResponseModel.fromJson(
@@ -49,11 +53,15 @@ class TeenDriverExperienceResponseModel {
       mediaUrl = url.isEmpty ? null : url;
     }
 
-    final comments = json['comments'] is List
+    final commentsData = json['comments'] is List
         ? List<dynamic>.from(json['comments'])
         : <dynamic>[];
     final likes =
         json['likes'] is List ? List<dynamic>.from(json['likes']) : <dynamic>[];
+    final comments = commentsData
+        .map((item) => TeenDriverCommentResponseModel.fromJson(
+            Map<String, dynamic>.from(item)))
+        .toList();
 
     return TeenDriverExperienceResponseModel(
       id: json['_id']?.toString() ?? '',
@@ -71,6 +79,7 @@ class TeenDriverExperienceResponseModel {
       version: json['__v'] is num ? (json['__v'] as num).toInt() : 0,
       commentsCount: comments.length,
       likesCount: likes.length,
+      comments: comments,
     );
   }
 }

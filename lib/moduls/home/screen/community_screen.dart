@@ -1,46 +1,100 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../core/notifiers/snackbar_notifier.dart';
+import '../../../core/services/app_pigeon/app_pigeon.dart';
+import '../controller/teen_driver_comment_controller.dart';
+import '../implement/teen_driver_experience_interface_impl.dart';
+import '../interface/teen_driver_experience_interface.dart';
+import '../model/teen_driver_comment_response_model.dart';
 
 class CommunityScreen extends StatefulWidget {
-  const CommunityScreen({super.key});
+  final String postId;
+
+  const CommunityScreen({super.key, this.postId = ''});
 
   @override
   State<CommunityScreen> createState() => _CommunityScreenState();
 }
 
 class _CommunityScreenState extends State<CommunityScreen> {
-  final List<_CommunityComment> _comments = [
-    _CommunityComment(name: 'Adams', message: 'Big fan senor'),
-    _CommunityComment(name: 'John Doe', message: 'Nice performance'),
-    _CommunityComment(name: 'Gary Whisper', message: 'Awesome!!!'),
-    _CommunityComment(name: 'Joey', message: 'Outstanding..'),
-    _CommunityComment(name: 'Adams', message: 'Big fan senor'),
-    _CommunityComment(name: 'John Doe', message: 'Nice performance'),
-    _CommunityComment(name: 'Gary Whisper', message: 'Awesome!!!'),
-    _CommunityComment(name: 'Joey', message: 'Outstanding..'),
-    _CommunityComment(name: 'Adams', message: 'Big fan senor'),
-    _CommunityComment(name: 'John Doe', message: 'Nice performance'),
-    _CommunityComment(name: 'Gary Whisper', message: 'Awesome!!!'),
-  ];
   final TextEditingController _commentController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late final TeenDriverCommentController _controller;
+  late final SnackbarNotifier _snackbarNotifier;
+  bool _initialized = false;
+
+  void _onControllerUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   void dispose() {
     _commentController.dispose();
     _scrollController.dispose();
+    if (_initialized) {
+      _controller.removeListener(_onControllerUpdate);
+      _controller.dispose();
+    }
     super.dispose();
   }
 
-  void _addComment() {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      if (!Get.isRegistered<TeenDriverExperienceInterface>()) {
+        Get.put<TeenDriverExperienceInterface>(
+          TeenDriverExperienceInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
+        );
+      }
+      _snackbarNotifier = SnackbarNotifier(context: context);
+      _controller =
+          TeenDriverCommentController(snackbarNotifier: _snackbarNotifier);
+      _controller.addListener(_onControllerUpdate);
+      if (widget.postId.trim().isNotEmpty) {
+        _controller.loadComments(postId: widget.postId.trim());
+      }
+    }
+  }
+
+  String _commentName(TeenDriverCommentResponseModel comment) {
+    if (comment.userName.isNotEmpty) {
+      return comment.userName;
+    }
+    if (comment.userId.isEmpty) {
+      return 'User';
+    }
+    final id = comment.userId;
+    final shortId = id.length > 6 ? id.substring(0, 6) : id;
+    return 'User $shortId';
+  }
+
+  Future<void> _addComment() async {
     final text = _commentController.text.trim();
     if (text.isEmpty) {
       return;
     }
+    if (widget.postId.trim().isEmpty) {
+      _snackbarNotifier.notifyError(message: 'Post id is missing.');
+      return;
+    }
 
-    setState(() {
-      _comments.add(_CommunityComment(name: 'You', message: text));
-    });
+    _controller.text = text;
+    final createdComment =
+        await _controller.submit(postId: widget.postId.trim());
+    if (!mounted) {
+      return;
+    }
+    if (createdComment == null) {
+      return;
+    }
     _commentController.clear();
+    _controller.text = '';
+    await _controller.loadComments(postId: widget.postId.trim());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) {
@@ -64,6 +118,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final viewInsets = MediaQuery.of(context).viewInsets;
+    final isSubmitting = _initialized ? _controller.isSubmitting : false;
+    final hasPostId = widget.postId.trim().isNotEmpty;
+    final canSubmit =
+        _initialized ? _controller.canSubmit && hasPostId : false;
+    final isLoading = _initialized ? _controller.isLoading : false;
+    final comments = _initialized ? _controller.comments : [];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
@@ -99,21 +159,28 @@ class _CommunityScreenState extends State<CommunityScreen> {
               ),
             ),
             Expanded(
-              child: ListView.separated(
-                controller: _scrollController,
-                padding: EdgeInsets.symmetric(
-                  horizontal: size.width * 0.06,
-                  vertical: size.height * 0.01,
-                ),
-                itemBuilder: (context, index) {
-                  final comment = _comments[index];
-                  return _CommunityCommentTile(comment: comment);
-                },
-                separatorBuilder: (_, __) => SizedBox(
-                  height: size.height * 0.02,
-                ),
-                itemCount: _comments.length,
-              ),
+              child: isLoading && comments.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.separated(
+                      controller: _scrollController,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: size.width * 0.06,
+                        vertical: size.height * 0.01,
+                      ),
+                      itemBuilder: (context, index) {
+                        final comment = comments[index];
+                        return _CommunityCommentTile(
+                          comment: _CommunityComment(
+                            name: _commentName(comment),
+                            message: comment.text,
+                          ),
+                        );
+                      },
+                      separatorBuilder: (_, __) => SizedBox(
+                        height: size.height * 0.02,
+                      ),
+                      itemCount: comments.length,
+                    ),
             ),
             AnimatedPadding(
               duration: const Duration(milliseconds: 200),
@@ -169,6 +236,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           child: TextField(
                             controller: _commentController,
                             textInputAction: TextInputAction.send,
+                            onChanged: (value) => _controller.text = value,
                             onSubmitted: (_) => _addComment(),
                             decoration: const InputDecoration(
                               hintText: 'Add Comment',
@@ -177,7 +245,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           ),
                         ),
                         IconButton(
-                          onPressed: _addComment,
+                          onPressed: canSubmit && !isSubmitting
+                              ? _addComment
+                              : null,
                           icon: const Icon(Icons.send),
                           color: const Color(0xFF222222),
                         ),

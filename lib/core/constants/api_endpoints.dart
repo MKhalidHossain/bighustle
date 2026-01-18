@@ -151,9 +151,17 @@ base class ApiEndpoints {
   /// ### post
   static const String createTeenDriverExperience =
       _TeenDriverExperience.createExperience;
+
   /// ### get
   static const String getTeenDriverPosts =
       _TeenDriverExperience.teenDriverPosts;
+
+  /// ### post
+  static String addTeenDriverPostComment(String postId) =>
+      _TeenDriverExperience.addComment(postId);
+  /// ### get
+  static String getTeenDriverPostComments(String postId) =>
+      _TeenDriverExperience.getComments(postId);
 }
 
 //arrow360degree@gmail.com
@@ -166,7 +174,7 @@ class _RemoteServer {
 
 class _LocalHostWifi {
   static const String socketUrl = 'http://localhost:5003';
-  static const String baseUrl = 'http://10.10.5.95:5000/api/v1';
+  static const String baseUrl = 'http://10.10.5.94:5000/api/v1';
 }
 
 class _Auth {
@@ -249,6 +257,10 @@ class _TeenDriverExperience {
       '${ApiEndpoints.baseUrl}/teen/posts';
   static const String createExperience = '$_teenDriverExperienceRoute';
   static const String teenDriverPosts = '$_teenDriverExperienceRoute';
+  static String addComment(String postId) =>
+      '$_teenDriverExperienceRoute/$postId/comments';
+  static String getComments(String postId) =>
+      '$_teenDriverExperienceRoute/$postId/comments';
 }
 
 // ---------------------- RIDE -----------------------------

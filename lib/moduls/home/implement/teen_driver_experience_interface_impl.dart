@@ -6,6 +6,8 @@ import '../../../core/api_handler/success.dart';
 import '../../../core/constants/api_endpoints.dart';
 import '../../../core/services/app_pigeon/app_pigeon.dart';
 import '../interface/teen_driver_experience_interface.dart';
+import '../model/teen_driver_comment_request_model.dart';
+import '../model/teen_driver_comment_response_model.dart';
 import '../model/teen_driver_experience_request_model.dart';
 import '../model/teen_driver_experience_response_model.dart';
 
@@ -78,6 +80,65 @@ final class TeenDriverExperienceInterfaceImpl
         return Success(
           message: message,
           data: posts,
+        );
+      },
+    );
+  }
+
+  @override
+  Future<Either<DataCRUDFailure, Success<TeenDriverCommentResponseModel>>>
+      addTeenDriverPostComment({
+    required String postId,
+    required TeenDriverCommentRequestModel param,
+  }) async {
+    return asyncTryCatch(
+      tryFunc: () async {
+        final response = await appPigeon.post(
+          ApiEndpoints.addTeenDriverPostComment(postId),
+          data: param.toJson(),
+        );
+        final responseBody = response.data is Map
+            ? Map<String, dynamic>.from(response.data)
+            : <String, dynamic>{};
+        final responseData = responseBody['data'];
+        final payload = responseData is Map
+            ? Map<String, dynamic>.from(responseData)
+            : <String, dynamic>{};
+        final message = responseBody['message']?.toString() ?? 'Comment added';
+
+        return Success(
+          message: message,
+          data: TeenDriverCommentResponseModel.fromJson(payload),
+        );
+      },
+    );
+  }
+
+  @override
+  Future<Either<DataCRUDFailure, Success<List<TeenDriverCommentResponseModel>>>>
+      getTeenDriverPostComments({required String postId}) async {
+    return asyncTryCatch(
+      tryFunc: () async {
+        final response = await appPigeon.get(
+          ApiEndpoints.getTeenDriverPostComments(postId),
+        );
+        final responseBody = response.data is Map
+            ? Map<String, dynamic>.from(response.data)
+            : <String, dynamic>{};
+        final responseData = responseBody['data'];
+        final message = responseBody['message']?.toString() ?? 'Comments fetched';
+
+        List<TeenDriverCommentResponseModel> comments = [];
+        if (responseData is List) {
+          comments = responseData
+              .map((item) => TeenDriverCommentResponseModel.fromJson(
+                  Map<String, dynamic>.from(item)))
+              .toList();
+        }
+
+        return Success(
+          message: message,
+          data: comments,
         );
       },
     );
