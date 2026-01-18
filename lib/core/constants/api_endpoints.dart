@@ -149,7 +149,19 @@ base class ApiEndpoints {
   // ---------------------- LICENSE -----------------------------
   /// ### get
   static String getLicense = _License._licenseRoute;
-  
+
+  // ---------------------- TEEN DRIVER EXPERIENCE -----------------------------
+  /// ### post
+  static const String createTeenDriverExperience =
+      _TeenDriverExperience.createExperience;
+
+  /// ### get
+  static const String getTeenDriverPosts =
+      _TeenDriverExperience.teenDriverPosts;
+
+  /// ### post
+  static String addTeenDriverPostComment(String postId) =>
+      _TeenDriverExperience.addComment(postId);
   /// ### get
   static const String getAlerts = _Alerts.getAlerts;
 
