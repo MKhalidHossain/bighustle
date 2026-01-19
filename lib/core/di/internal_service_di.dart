@@ -12,6 +12,8 @@ import '../../moduls/profile/implement/profile_interface_impl.dart';
 import '../../moduls/profile/interface/profile_interface.dart';
 import '../../moduls/ticket/implement/ticket_interface_impl.dart';
 import '../../moduls/ticket/interface/ticket_interface.dart';
+import '../../moduls/notification/implement/notification_interface_impl.dart';
+import '../../moduls/notification/interface/notification_interface.dart';
 import '../services/app_pigeon/app_pigeon.dart';
 
 void initServices() {

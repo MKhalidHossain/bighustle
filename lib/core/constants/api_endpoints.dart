@@ -55,6 +55,9 @@ base class ApiEndpoints {
   /// ### get
   static const String getAllNotifications = _Notification.getAllNotifications;
 
+  /// ### get
+  static String getUserNotifications(String userId) => _Notification.getUserNotifications(userId);
+
   /// ### post
   static const String readAllNotifications = _Notification.readAllNotifications;
 
@@ -64,6 +67,9 @@ base class ApiEndpoints {
 
   /// ### patch
   static const String markAllAsRead = _Notification.markAllAsRead;
+  
+  /// ### patch
+  static String markAllNotificationsAsRead(String userId) => _Notification.markAllAsReadByUser(userId);
 
   // ---------------------- USER -----------------------------
 
@@ -241,13 +247,15 @@ class _Report {
 // ---------------------- Notification -----------------------------
 class _Notification {
   static const String _notificationRoute =
-      '${ApiEndpoints.baseUrl}/notification';
+      '${ApiEndpoints.baseUrl}/notifications';
   static String markNotificationAsRead(String notificationId) =>
       '$_notificationRoute/mark-as-read/$notificationId';
   static const String readAllNotifications =
       '$_notificationRoute/mark-all-as-read';
   static const String markAllAsRead = '$_notificationRoute/mark-all-as-read';
+  static String markAllAsReadByUser(String userId) => '$_notificationRoute/read/$userId';
   static const String getAllNotifications = '$_notificationRoute/';
+  static String getUserNotifications(String userId) => '$_notificationRoute/$userId';
 }
 
 // ---------------------- USER -----------------------------
@@ -275,8 +283,8 @@ class _License {
 class _TeenDriverExperience {
   static const String _teenDriverExperienceRoute =
       '${ApiEndpoints.baseUrl}/teen/posts';
-  static const String createExperience = '$_teenDriverExperienceRoute';
-  static const String teenDriverPosts = '$_teenDriverExperienceRoute';
+  static const String createExperience = _teenDriverExperienceRoute;
+  static const String teenDriverPosts = _teenDriverExperienceRoute;
   static String addComment(String postId) =>
       '$_teenDriverExperienceRoute/$postId/comments';
   static String getComments(String postId) =>
