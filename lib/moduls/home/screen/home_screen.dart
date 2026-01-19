@@ -37,21 +37,24 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  Stack(
-                    children: [
-                      Icon(
-                        Icons.notifications_none,
-                        size: (size.width * 0.07).clamp(20.0, 28.0),
-                      ),
-                      const Positioned(
-                        right: 4,
-                        top: 4,
-                        child: CircleAvatar(
-                          radius: 4,
-                          backgroundColor: Color(0xFFE65151),
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, AppRoutes.notifications),
+                    child: Stack(
+                      children: [
+                        Icon(
+                          Icons.notifications_none,
+                          size: (size.width * 0.07).clamp(20.0, 28.0),
                         ),
-                      ),
-                    ],
+                        const Positioned(
+                          right: 4,
+                          top: 4,
+                          child: CircleAvatar(
+                            radius: 4,
+                            backgroundColor: Color(0xFFE65151),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 10),
                   GestureDetector(
