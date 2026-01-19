@@ -92,7 +92,7 @@ base class ApiEndpoints {
   // ---------------------- LICENSE -----------------------------
   /// ### post
   static const String createLicense = _License.create;
-  
+
   /// ### put
   static String updateLicense(String userId) => _License.update(userId);
 
@@ -162,24 +162,33 @@ base class ApiEndpoints {
   /// ### post
   static String addTeenDriverPostComment(String postId) =>
       _TeenDriverExperience.addComment(postId);
+
+  /// ### get
+  static String getTeenDriverPostComments(String postId) =>
+      _TeenDriverExperience.getComments(postId);
+
+  /// ### post
+  static String likeTeenDriverPost(String postId) =>
+      _TeenDriverExperience.likePost(postId);
+
   /// ### get
   static const String getAlerts = _Alerts.getAlerts;
 
   // ---------------------- TICKET -----------------------------
   /// ### get
-  static String getMyTickets({String? status}) => _Ticket.getMyTickets(status: status);
-  
+  static String getMyTickets({String? status}) =>
+      _Ticket.getMyTickets(status: status);
+
   /// ### get
-  static String getTicketById(String ticketId) => _Ticket.getTicketById(ticketId);
+  static String getTicketById(String ticketId) =>
+      _Ticket.getTicketById(ticketId);
 }
 
 //arrow360degree@gmail.com
 
-
-
 class _LocalHostWifi {
   static const String socketUrl = 'http://localhost:5003';
-  static const String baseUrl = 'http://10.10.5.95:5000/api/v1';
+  static const String baseUrl = 'http://10.10.5.94:5000/api/v1';
 }
 
 class _Auth {
@@ -258,6 +267,20 @@ class _License {
   static String update(String userId) => '$_licenseRoute/$userId';
 }
 
+// ---------------------- TEEN DRIVER EXPERIENCE -----------------------------
+class _TeenDriverExperience {
+  static const String _teenDriverExperienceRoute =
+      '${ApiEndpoints.baseUrl}/teen/posts';
+  static const String createExperience = '$_teenDriverExperienceRoute';
+  static const String teenDriverPosts = '$_teenDriverExperienceRoute';
+  static String addComment(String postId) =>
+      '$_teenDriverExperienceRoute/$postId/comments';
+  static String getComments(String postId) =>
+      '$_teenDriverExperienceRoute/$postId/comments';
+  static String likePost(String postId) =>
+      '$_teenDriverExperienceRoute/$postId/like';
+}
+
 // ---------------------- ALERTS -----------------------------
 class _Alerts {
   static const String _alertsRoute = '${ApiEndpoints.baseUrl}/alerts';
@@ -274,7 +297,7 @@ class _Ticket {
     }
     return baseUrl;
   }
-  
+
   static String getTicketById(String ticketId) => '$_ticketRoute/$ticketId';
 }
 
