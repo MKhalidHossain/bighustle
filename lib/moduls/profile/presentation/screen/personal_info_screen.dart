@@ -126,7 +126,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'User ID: ${profileData.userId}',
+                              'User ID: ${profileData.userId.substring( 0, 8)}',
                               style: const TextStyle(
                                 color: Colors.black54,
                                 fontSize: 12,

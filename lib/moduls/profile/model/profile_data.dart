@@ -45,6 +45,13 @@ class ProfileData extends ChangeNotifier {
     inactiveAlerts = profile.inactiveAlerts;
     teenDriverAlerts = profile.teenDriverAlerts;
     communityAlerts = profile.communityAlerts;
+    if (profile.dateOfBirth != null) {
+      final date = profile.dateOfBirth!;
+      dateOfBirth =
+          '${date.year.toString().padLeft(4, '0')}-'
+          '${date.month.toString().padLeft(2, '0')}-'
+          '${date.day.toString().padLeft(2, '0')}';
+    }
     hasLoaded = true;
     notifyListeners();
   }

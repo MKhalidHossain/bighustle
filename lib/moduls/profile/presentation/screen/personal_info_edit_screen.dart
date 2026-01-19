@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:get/get.dart';
 
+import '../../../../core/notifiers/snackbar_notifier.dart';
 import '../../model/profile_data.dart';
+import '../../interface/profile_interface.dart';
+import '../../model/update_profile_request_model.dart';
 import '../widget/info_field.dart';
 
 class PersonalInfoEditScreen extends StatefulWidget {
@@ -20,6 +24,10 @@ class _PersonalInfoEditScreenState extends State<PersonalInfoEditScreen> {
   late final TextEditingController _phoneController;
   late final TextEditingController _dobController;
   late ProfileData _profileData;
+  late final SnackbarNotifier _snackbarNotifier;
+  bool _isSaving = false;
+  bool _initialized = false;
+  String? _selectedAvatarPath;
 
   Future<void> _pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(
@@ -29,6 +37,7 @@ class _PersonalInfoEditScreenState extends State<PersonalInfoEditScreen> {
     if (pickedFile == null) {
       return;
     }
+    _selectedAvatarPath = pickedFile.path;
     _profileData.updateAvatar(pickedFile.path);
   }
 
@@ -42,6 +51,15 @@ class _PersonalInfoEditScreenState extends State<PersonalInfoEditScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _snackbarNotifier = SnackbarNotifier(context: context);
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
@@ -49,12 +67,47 @@ class _PersonalInfoEditScreenState extends State<PersonalInfoEditScreen> {
     super.dispose();
   }
 
-  void _saveProfile() {
-    _profileData.updateProfile(
-      name: _nameController.text.trim(),
-      phone: _phoneController.text.trim(),
-      dateOfBirth: _dobController.text.trim(),
+  Future<void> _saveProfile() async {
+    if (_isSaving) return;
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final dob = _dobController.text.trim();
+    final avatarPath = _selectedAvatarPath ?? _profileData.avatarPath;
+
+    print("Avatar path _selectedAvatarPath : from Personal Info Edit Screen : $_selectedAvatarPath");
+    print("Avatar path : from Personal Info Edit Screen : $avatarPath");
+
+    setState(() => _isSaving = true);
+    final profileInterface = Get.find<ProfileInterface>();
+    final result = await profileInterface.updateProfile(
+      param: UpdateProfileRequestModel(
+        name: name,
+        phone: phone,
+        dob: dob,
+        avatarPath: avatarPath,
+      ),
     );
+
+    result.fold(
+      (failure) {
+        _snackbarNotifier.notifyError(
+          message:
+              failure.uiMessage.isNotEmpty ? failure.uiMessage : 'Update failed',
+        );
+      },
+      (success) {
+        if (success.data != null) {
+          _profileData.updateFromProfile(success.data!);
+        }
+        _selectedAvatarPath = null;
+        _snackbarNotifier.notifySuccess(message: success.message);
+        Navigator.pop(context);
+      },
+    );
+
+    if (mounted) {
+      setState(() => _isSaving = false);
+    }
   }
 
   @override
@@ -170,8 +223,19 @@ class _PersonalInfoEditScreenState extends State<PersonalInfoEditScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: _saveProfile,
-                child: const Text('Update'),
+                onPressed: _isSaving ? null : _saveProfile,
+                child: _isSaving
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : const Text('Update'),
               ),
             ),
           ),
