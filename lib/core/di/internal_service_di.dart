@@ -21,6 +21,7 @@ void initServices() {
   );
   Get.put<ProfileInterface>(
     ProfileInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
+  );
   Get.put<TicketInterface>(
     TicketInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
   );
