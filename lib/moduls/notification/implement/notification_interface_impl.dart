@@ -24,8 +24,11 @@ final class NotificationInterfaceImpl extends NotificationInterface {
         final responseBody = response.data is Map
             ? Map<String, dynamic>.from(response.data)
             : <String, dynamic>{};
-        final responseData = responseBody["data"];
-
+        
+        // Handle different response formats
+        dynamic responseData = responseBody["data"] ?? responseBody;
+        
+        // If responseData is null or empty, return empty list
         if (responseData == null) {
           return Success(
             message: responseBody['message']?.toString() ?? 'No notifications found',
@@ -34,16 +37,84 @@ final class NotificationInterfaceImpl extends NotificationInterface {
         }
 
         List<NotificationModel> notifications = [];
+        
+        // Handle list response
         if (responseData is List) {
           notifications = responseData
-              .map((item) => NotificationModel.fromJson(
-                  Map<String, dynamic>.from(item)))
+              .where((item) => item != null)
+              .map((item) {
+                try {
+                  return NotificationModel.fromJson(
+                    Map<String, dynamic>.from(item)
+                  );
+                } catch (e) {
+                  // Skip invalid items
+                  return null;
+                }
+              })
+              .whereType<NotificationModel>()
               .toList();
+        } 
+        // Handle single object response (wrap in list)
+        else if (responseData is Map) {
+          try {
+            final notification = NotificationModel.fromJson(
+              Map<String, dynamic>.from(responseData)
+            );
+            notifications = [notification];
+          } catch (e) {
+            // If parsing fails, return empty list
+            notifications = [];
+          }
         }
 
         return Success(
           message: responseBody['message']?.toString() ?? 'Notifications fetched successfully',
           data: notifications,
+        );
+      },
+    );
+  }
+
+  @override
+  Future<Either<DataCRUDFailure, Success<NotificationModel>>> getNotificationById({
+    required String notificationId,
+  }) async {
+    return asyncTryCatch(
+      tryFunc: () async {
+        final response = await appPigeon.get(
+          ApiEndpoints.getNotificationById(notificationId),
+        );
+        final responseBody = response.data is Map
+            ? Map<String, dynamic>.from(response.data)
+            : <String, dynamic>{};
+        final responseData = responseBody["data"] ?? responseBody;
+
+        if (responseData == null) {
+          return Success(
+            message: responseBody['message']?.toString() ?? 'Notification not found',
+            data: NotificationModel(
+              id: '',
+              userId: '',
+              title: '',
+              message: '',
+              type: '',
+              isRead: false,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+        }
+
+        final notification = NotificationModel.fromJson(
+          responseData is Map
+              ? Map<String, dynamic>.from(responseData)
+              : <String, dynamic>{},
+        );
+
+        return Success(
+          message: responseBody['message']?.toString() ?? 'Notification fetched successfully',
+          data: notification,
         );
       },
     );

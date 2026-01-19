@@ -58,6 +58,9 @@ base class ApiEndpoints {
   /// ### get
   static String getUserNotifications(String userId) => _Notification.getUserNotifications(userId);
 
+  /// ### get
+  static String getNotificationById(String notificationId) => _Notification.getNotificationById(notificationId);
+
   /// ### post
   static const String readAllNotifications = _Notification.readAllNotifications;
 
@@ -197,16 +200,15 @@ base class ApiEndpoints {
       _Ticket.getTicketById(ticketId);
 }
 
-class _RemoteServer {
-  static const String socketUrl = 'https://ursffiver-backend.onrender.com';
 
-  static const String baseUrl = 'https://ursffiver-backend.onrender.com/api/v1';
-}
 
 class _LocalHostWifi {
-  static const String socketUrl = 'http://localhost:5003';
-  static const String baseUrl = 'http://10.10.5.85:5000/api/v1';
+  static const String socketUrl = 'https://backend-bigghustle.onrender.com';
+  static const String baseUrl = 'https://backend-bigghustle.onrender.com/api/v1';
 }
+
+
+
 
 class _Auth {
   @protected
@@ -263,6 +265,7 @@ class _Notification {
   static String markAllAsReadByUser(String userId) => '$_notificationRoute/read/$userId';
   static const String getAllNotifications = '$_notificationRoute/';
   static String getUserNotifications(String userId) => '$_notificationRoute/$userId';
+  static String getNotificationById(String notificationId) => '$_notificationRoute/$notificationId';
 }
 
 // ---------------------- USER -----------------------------

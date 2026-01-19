@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/notifiers/snackbar_notifier.dart';
 import '../../../../core/services/app_pigeon/app_pigeon.dart';
 import '../../interface/notification_interface.dart';
@@ -18,6 +19,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   bool _isInitialized = false;
   List<NotificationModel> _notifications = [];
   int _unreadCount = 0;
+  bool _justMarkedAllAsRead = false; // Track if we just marked all as read
 
   @override
   void didChangeDependencies() {
@@ -64,10 +66,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
     try {
       final notificationInterface = Get.find<NotificationInterface>();
+      
+      // Debug: Print API URL and user ID
+      final apiUrl = ApiEndpoints.getUserNotifications(userId);
+      debugPrint('📡 Notification API Call:');
+      debugPrint('   URL: $apiUrl');
+      debugPrint('   User ID: $userId');
+      debugPrint('   Method: GET');
+      debugPrint('   Token: Applied automatically via AuthService interceptor');
+      
       final result = await notificationInterface.getNotifications(userId: userId);
 
       result.fold(
         (failure) {
+          debugPrint('❌ API Error: ${failure.uiMessage}');
           _snackbarNotifier.notifyError(
             message: failure.uiMessage.isNotEmpty
                 ? failure.uiMessage
@@ -75,14 +87,53 @@ class _NotificationScreenState extends State<NotificationScreen> {
           );
         },
         (success) {
-          setState(() {
-            _notifications = success.data ?? [];
-            // Calculate only unread notifications count
-            _unreadCount = _notifications.where((notification) => !notification.isRead).length;
-          });
+          debugPrint('✅ API Success: ${success.message}');
+          debugPrint('   Notifications count: ${success.data?.length ?? 0}');
+          
+          final loadedNotifications = success.data ?? [];
+          
+          // If we just marked all as read, preserve the read state
+          // This prevents server delay from overwriting our local state
+          if (_justMarkedAllAsRead) {
+            // Merge: keep read state from local if we just marked them
+            final localNotificationMap = {
+              for (var n in _notifications) n.id: n
+            };
+            
+            setState(() {
+              _notifications = loadedNotifications.map((loaded) {
+                // If we have this notification locally and it was marked as read, keep it read
+                final local = localNotificationMap[loaded.id];
+                if (local != null && local.isRead) {
+                  return NotificationModel(
+                    id: loaded.id,
+                    userId: loaded.userId,
+                    title: loaded.title,
+                    message: loaded.message,
+                    type: loaded.type,
+                    isRead: true, // Preserve read state
+                    createdAt: loaded.createdAt,
+                    updatedAt: loaded.updatedAt,
+                  );
+                }
+                return loaded;
+              }).toList();
+              _unreadCount = _notifications.where((notification) => !notification.isRead).length;
+              _justMarkedAllAsRead = false; // Reset flag
+            });
+            
+            debugPrint('✅ Preserved read state after mark all as read');
+          } else {
+            // Normal load - use server data as is
+            setState(() {
+              _notifications = loadedNotifications;
+              _unreadCount = _notifications.where((notification) => !notification.isRead).length;
+            });
+          }
         },
       );
     } catch (e) {
+      debugPrint('❌ Exception: $e');
       _snackbarNotifier.notifyError(
         message: 'An error occurred while loading notifications',
       );
@@ -95,6 +146,48 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
+  Future<void> _markNotificationAsRead(String notificationId) async {
+    try {
+      final appPigeon = Get.find<AppPigeon>();
+      
+      // Use the markNotificationAsRead endpoint
+      final apiUrl = ApiEndpoints.markNotificationAsRead(notificationId: notificationId);
+      debugPrint('📡 Mark as Read API Call:');
+      debugPrint('   URL: $apiUrl');
+      debugPrint('   Method: PATCH');
+      debugPrint('   Token: Applied automatically via AuthService interceptor');
+      
+      await appPigeon.patch(apiUrl);
+      
+      // Update local state
+      setState(() {
+        _notifications = _notifications.map((notification) {
+          if (notification.id == notificationId) {
+            return NotificationModel(
+              id: notification.id,
+              userId: notification.userId,
+              title: notification.title,
+              message: notification.message,
+              type: notification.type,
+              isRead: true,
+              createdAt: notification.createdAt,
+              updatedAt: notification.updatedAt,
+            );
+          }
+          return notification;
+        }).toList();
+        _unreadCount = _notifications.where((notification) => !notification.isRead).length;
+      });
+      
+      debugPrint('✅ Notification marked as read: $notificationId');
+    } catch (e) {
+      debugPrint('❌ Error marking notification as read: $e');
+      _snackbarNotifier.notifyError(
+        message: 'Failed to mark notification as read',
+      );
+    }
+  }
+
   Future<void> _markAllAsRead() async {
     final userId = await _getUserId();
     if (userId == null || userId.isEmpty) {
@@ -104,25 +197,41 @@ class _NotificationScreenState extends State<NotificationScreen> {
       return;
     }
 
+    // Show loading state
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       final notificationInterface = Get.find<NotificationInterface>();
+      
+      debugPrint('📡 Mark All As Read API Call:');
+      debugPrint('   User ID: $userId');
+      debugPrint('   Method: PATCH');
+      debugPrint('   Token: Applied automatically via AuthService interceptor');
+      
       final result = await notificationInterface.markAllAsRead(userId: userId);
 
       result.fold(
         (failure) {
+          debugPrint('❌ Mark All As Read Error: ${failure.uiMessage}');
           _snackbarNotifier.notifyError(
             message: failure.uiMessage.isNotEmpty
                 ? failure.uiMessage
                 : 'Failed to mark all as read',
           );
+          setState(() {
+            _isLoading = false;
+          });
         },
         (success) {
-          _snackbarNotifier.notifySuccess(
-            message: success.message.isNotEmpty
-                ? success.message
-                : 'All notifications marked as read',
-          );
-          // Update local state immediately
+          debugPrint('✅ Mark All As Read Success: ${success.message}');
+          
+          // Set flag to preserve read state during reload
+          _justMarkedAllAsRead = true;
+          
+          // Update local state immediately - mark all as read
+          // This ensures UI updates instantly before server sync
           setState(() {
             _notifications = _notifications.map((notification) {
               return NotificationModel(
@@ -136,16 +245,38 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 updatedAt: notification.updatedAt,
               );
             }).toList();
-            _unreadCount = 0;
+            _unreadCount = 0; // Reset unread count
+            _isLoading = false;
           });
-          // Optionally reload from server to ensure sync
-          _loadNotifications();
+          
+          _snackbarNotifier.notifySuccess(
+            message: success.message.isNotEmpty
+                ? success.message
+                : 'All notifications marked as read',
+          );
+          
+          debugPrint('✅ UI Updated:');
+          debugPrint('   Total notifications: ${_notifications.length}');
+          debugPrint('   Unread count: $_unreadCount');
+          debugPrint('   All notifications isRead: ${_notifications.every((n) => n.isRead)}');
+          
+          // Reload from server after a delay to sync with backend
+          // The flag will preserve read state during reload
+          Future.delayed(const Duration(seconds: 1), () {
+            if (mounted) {
+              _loadNotifications();
+            }
+          });
         },
       );
     } catch (e) {
+      debugPrint('❌ Exception in markAllAsRead: $e');
       _snackbarNotifier.notifyError(
         message: 'An error occurred while marking notifications as read',
       );
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -159,6 +290,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
         return Icons.warning;
       default:
         return Icons.notifications;
+    }
+  }
+
+  Color _getNotificationColor(String type) {
+    switch (type.toLowerCase()) {
+      case 'license':
+        return const Color(0xFF1976F3);
+      case 'ticket':
+        return const Color(0xFFF57C00);
+      case 'alert':
+        return const Color(0xFFD32F2F);
+      default:
+        return const Color(0xFF1976F3);
     }
   }
 
@@ -271,14 +415,27 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               final notification = _notifications[index];
                               final isUnread = !notification.isRead;
                               
-                              return Container(
+                              return InkWell(
+                                onTap: () {
+                                  if (isUnread) {
+                                    _markNotificationAsRead(notification.id);
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
                                 margin: const EdgeInsets.only(bottom: 8),
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: isUnread 
                                       ? const Color(0xFFEAF5FF) 
                                       : Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: isUnread
+                                      ? Border.all(
+                                          color: const Color(0xFF1976F3).withValues(alpha: 0.3),
+                                          width: 1,
+                                        )
+                                      : null,
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withValues(alpha: 0.05),
@@ -290,41 +447,107 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    CircleAvatar(
-                                      radius: 20,
-                                      backgroundColor: const Color(0xFFDDE3EE),
+                                    // Unread indicator dot
+                                    if (isUnread)
+                                      Container(
+                                        margin: const EdgeInsets.only(top: 6, right: 12),
+                                        width: 8,
+                                        height: 8,
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xFF1976F3),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    // Icon
+                                    Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: _getNotificationColor(notification.type).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
                                       child: Icon(
                                         _getNotificationIcon(notification.type),
-                                        size: 20,
-                                        color: const Color(0xFF5A6472),
+                                        size: 24,
+                                        color: _getNotificationColor(notification.type),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
+                                    // Content
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
+                                          // Title
+                                          if (notification.title.isNotEmpty)
+                                            Text(
+                                              notification.title,
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: isUnread 
+                                                    ? const Color(0xFF1976F3)
+                                                    : Colors.black87,
+                                              ),
+                                            ),
+                                          if (notification.title.isNotEmpty)
+                                            const SizedBox(height: 4),
+                                          // Message
                                           Text(
                                             notification.message,
                                             style: const TextStyle(
                                               fontSize: 13,
-                                              fontWeight: FontWeight.w500,
+                                              fontWeight: FontWeight.w400,
                                               color: Colors.black87,
+                                              height: 1.4,
                                             ),
+                                            maxLines: 3,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            notification.timeAgo,
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: Color(0xFF8E8E8E),
-                                            ),
+                                          const SizedBox(height: 8),
+                                          // Time and Type
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.access_time,
+                                                size: 12,
+                                                color: Colors.grey[600],
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                notification.timeAgo,
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 6,
+                                                  vertical: 2,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: _getNotificationColor(notification.type).withValues(alpha: 0.1),
+                                                  borderRadius: BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  notification.type.toUpperCase(),
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: _getNotificationColor(notification.type),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
                                     ),
                                   ],
                                 ),
+                              ),
                               );
                             },
                           ),
