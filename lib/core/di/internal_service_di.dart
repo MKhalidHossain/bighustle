@@ -32,4 +32,7 @@ void initServices() {
   Get.put<HomeInterface>(
     HomeInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
   );
+  Get.put<NotificationInterface>(
+    NotificationInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
+  );
 }

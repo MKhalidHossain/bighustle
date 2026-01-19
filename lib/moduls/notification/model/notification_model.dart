@@ -20,19 +20,43 @@ class NotificationModel {
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    // Handle userId field - can be 'user', 'userId', or nested 'user._id'
+    String extractUserId() {
+      if (json['user'] != null) {
+        if (json['user'] is String) {
+          return json['user'].toString();
+        } else if (json['user'] is Map) {
+          final userMap = Map<String, dynamic>.from(json['user']);
+          return userMap['_id']?.toString() ?? 
+                 userMap['id']?.toString() ?? 
+                 userMap['userId']?.toString() ?? '';
+        }
+      }
+      return json['userId']?.toString() ?? '';
+    }
+
+    // Handle date parsing with fallback
+    DateTime parseDate(String? dateKey) {
+      if (json[dateKey] == null) return DateTime.now();
+      try {
+        return DateTime.parse(json[dateKey].toString());
+      } catch (e) {
+        return DateTime.now();
+      }
+    }
+
     return NotificationModel(
-      id: json['_id']?.toString() ?? '',
-      userId: json['user']?.toString() ?? '',
+      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+      userId: extractUserId(),
       title: json['title']?.toString() ?? '',
-      message: json['message']?.toString() ?? '',
-      type: json['type']?.toString() ?? '',
-      isRead: json['isRead'] as bool? ?? false,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'].toString())
-          : DateTime.now(),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'].toString())
-          : DateTime.now(),
+      message: json['message']?.toString() ?? json['body']?.toString() ?? '',
+      type: json['type']?.toString() ?? json['notificationType']?.toString() ?? '',
+      isRead: json['isRead'] as bool? ?? 
+              (json['read'] as bool?) ?? 
+              (json['is_read'] as bool?) ?? 
+              false,
+      createdAt: parseDate('createdAt'),
+      updatedAt: parseDate('updatedAt'),
     );
   }
 

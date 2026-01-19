@@ -10,6 +10,10 @@ abstract base class NotificationInterface extends BaseRepository {
     required String userId,
   });
 
+  Future<Either<DataCRUDFailure, Success<NotificationModel>>> getNotificationById({
+    required String notificationId,
+  });
+
   Future<Either<DataCRUDFailure, Success<String>>> markAllAsRead({
     required String userId,
   });
