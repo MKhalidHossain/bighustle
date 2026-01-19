@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 
 import '../../../core/api_handler/base_repository.dart';
 import '../../../core/api_handler/failure.dart';
