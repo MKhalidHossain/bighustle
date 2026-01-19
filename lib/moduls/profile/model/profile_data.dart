@@ -16,6 +16,12 @@ class ProfileData extends ChangeNotifier {
   String userId = '12345678';
   String avatarUrl = '';
   String? avatarPath;
+  bool ticketAlerts = false;
+  bool licenseExpiryAlerts = false;
+  bool inactiveAlerts = false;
+  bool teenDriverAlerts = false;
+  bool communityAlerts = false;
+  bool hasLoaded = false;
 
   void updateProfile({
     required String name,
@@ -34,6 +40,27 @@ class ProfileData extends ChangeNotifier {
     email = profile.email.isNotEmpty ? profile.email : email;
     userId = profile.id.isNotEmpty ? profile.id : userId;
     avatarUrl = profile.avatarUrl;
+    ticketAlerts = profile.ticketAlerts;
+    licenseExpiryAlerts = profile.licenseExpiryAlerts;
+    inactiveAlerts = profile.inactiveAlerts;
+    teenDriverAlerts = profile.teenDriverAlerts;
+    communityAlerts = profile.communityAlerts;
+    hasLoaded = true;
+    notifyListeners();
+  }
+
+  void updateNotificationSettings({
+    required bool ticketAlerts,
+    required bool licenseExpiryAlerts,
+    required bool inactiveAlerts,
+    required bool teenDriverAlerts,
+    required bool communityAlerts,
+  }) {
+    this.ticketAlerts = ticketAlerts;
+    this.licenseExpiryAlerts = licenseExpiryAlerts;
+    this.inactiveAlerts = inactiveAlerts;
+    this.teenDriverAlerts = teenDriverAlerts;
+    this.communityAlerts = communityAlerts;
     notifyListeners();
   }
 

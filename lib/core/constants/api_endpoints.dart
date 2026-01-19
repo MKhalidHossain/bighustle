@@ -79,6 +79,9 @@ base class ApiEndpoints {
   /// ### put
   static const String uploadProfileAvatar = _User.uploadProfileAvatar;
 
+  /// ### put
+  static const String updateNotificationSettings = _User.updateSettings;
+
   /// ### get
   static const String history = _User.history;
 
@@ -254,6 +257,7 @@ class _User {
 
   static const String editProfile = '$_userRoute/update-profile';
   static const String uploadProfileAvatar = '$_userRoute/upload-avatar';
+  static const String updateSettings = '$_userRoute/settings';
   static const String history = '$_userRoute/history';
   static const String allUser = '$_userRoute/all-user';
   static const String setVisibility = '$_userRoute/visibility';

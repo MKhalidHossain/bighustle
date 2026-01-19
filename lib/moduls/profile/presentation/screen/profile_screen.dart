@@ -70,7 +70,7 @@ class ProfileScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                MaterialPageRoute(builder: (_) => const NotificationSettingsScreen()),
               );
             },
           ),
