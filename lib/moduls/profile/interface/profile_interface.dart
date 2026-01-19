@@ -1,10 +1,10 @@
 
 import '../../../core/api_handler/base_repository.dart';
+import '../../../core/api_handler/failure.dart';
+import '../../../core/api_handler/success.dart';
+import '../model/profile_response_model.dart';
 
 
 abstract base class ProfileInterface extends BaseRepository {
-  // Future<Either<DataCRUDFailure,Success<String>>> login( {required LoginRequestModel param});
-
-
-  // Stream<AuthStatus> authStream();
+  Future<Either<DataCRUDFailure, Success<ProfileResponseModel>>> getProfile();
 }
