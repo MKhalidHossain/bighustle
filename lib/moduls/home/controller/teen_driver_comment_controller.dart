@@ -174,24 +174,22 @@ class TeenDriverCommentController extends ChangeNotifier {
       final status = await appPigeon.currentAuth();
       if (status is Authenticated) {
         final data = status.auth.data;
-        if (data is Map) {
-          final userMap =
-              data['user'] is Map ? Map<String, dynamic>.from(data['user']) : null;
-          String readString(dynamic value) => value?.toString() ?? '';
-          final id = readString(
-            userMap?['_id'] ??
-                userMap?['id'] ??
-                userMap?['userId'] ??
-                data['_id'] ??
-                data['id'] ??
-                data['userId'],
-          );
-          final name = readString(
-            userMap?['name'] ?? data['name'] ?? data['fullName'],
-          );
-          return _UserSnapshot(id: id, name: name);
-        }
-      }
+        final userMap =
+            data['user'] is Map ? Map<String, dynamic>.from(data['user']) : null;
+        String readString(dynamic value) => value?.toString() ?? '';
+        final id = readString(
+          userMap?['_id'] ??
+              userMap?['id'] ??
+              userMap?['userId'] ??
+              data['_id'] ??
+              data['id'] ??
+              data['userId'],
+        );
+        final name = readString(
+          userMap?['name'] ?? data['name'] ?? data['fullName'],
+        );
+        return _UserSnapshot(id: id, name: name);
+            }
     } catch (_) {}
     return const _UserSnapshot(id: '', name: '');
   }
