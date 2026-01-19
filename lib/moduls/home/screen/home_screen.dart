@@ -1,8 +1,58 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_routes.dart';
+import 'package:get/get.dart';
 
-class HomeScreen extends StatelessWidget {
+import '../../../core/constants/app_routes.dart';
+import '../../../core/notifiers/snackbar_notifier.dart';
+import '../../../core/services/app_pigeon/app_pigeon.dart';
+import '../controller/home_controller.dart';
+import '../implement/home_interface_impl.dart';
+import '../interface/home_interface.dart';
+import '../model/home_response_model.dart';
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  HomeController? _controller;
+  SnackbarNotifier? _snackbarNotifier;
+  bool _initialized = false;
+
+  void _onControllerUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_controller != null) {
+      _controller!.removeListener(_onControllerUpdate);
+      _controller!.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+
+    if (!Get.isRegistered<HomeInterface>()) {
+      Get.put<HomeInterface>(
+        HomeInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
+      );
+    }
+
+    _snackbarNotifier = SnackbarNotifier(context: context);
+    _controller = HomeController(snackbarNotifier: _snackbarNotifier!);
+    _controller!.addListener(_onControllerUpdate);
+    _controller!.loadHomeData();
+  }
 
   void _showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(
@@ -10,9 +60,167 @@ class HomeScreen extends StatelessWidget {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  bool _isValidUrl(String? url) {
+    if (url == null) return false;
+    final trimmedUrl = url.trim();
+    if (trimmedUrl.isEmpty) return false;
+    return trimmedUrl.startsWith('http://') ||
+        trimmedUrl.startsWith('https://');
+  }
+
+  String _displayName(String? name) {
+    final trimmed = name?.trim() ?? '';
+    return trimmed.isNotEmpty ? trimmed : 'Driver';
+  }
+
+  String _formatStatus(String? status) {
+    final normalized = status?.trim();
+    if (normalized == null || normalized.isEmpty) return 'Unknown';
+    final lower = normalized.toLowerCase();
+    return '${lower[0].toUpperCase()}${lower.substring(1)}';
+  }
+
+  String _formatActivityTitle(HomeActivityModel activity) {
+    if (activity.title.trim().isNotEmpty) {
+      return activity.title.trim();
+    }
+    if (activity.type.trim().isNotEmpty) {
+      return activity.type.replaceAll('_', ' ');
+    }
+    return 'Activity';
+  }
+
+  String _formatActivitySubtitle(HomeActivityModel activity) {
+    final message = activity.message.trim();
+    final timeAgo = _timeAgo(activity.createdAt);
+    if (message.isEmpty) return timeAgo;
+    if (timeAgo.isEmpty) return message;
+    return '$message - $timeAgo';
+  }
+
+  int _licenseAlertsCount(List<HomeActivityModel> activities) {
+    var count = 0;
+    for (final activity in activities) {
+      final type = activity.type.toLowerCase();
+      if (type.contains('license')) {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
+  String _timeAgo(DateTime? date) {
+    if (date == null) return '';
+    final now = DateTime.now();
+    final difference = now.difference(date);
+    if (difference.inSeconds < 60) return 'Just now';
+    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
+    if (difference.inHours < 24) return '${difference.inHours}h ago';
+    if (difference.inDays < 7) return '${difference.inDays}d ago';
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    return '$month/$day/${date.year}';
+  }
+
+  _IndicatorStyle _licenseStatusStyle(String? status) {
+    final normalized = status?.toLowerCase().trim() ?? '';
+    if (normalized == 'active' ||
+        normalized == 'verified' ||
+        normalized == 'valid') {
+      return const _IndicatorStyle(
+        color: Color(0xFF1B8E3E),
+        background: Color(0xFFE8F7ED),
+        icon: Icons.shield_outlined,
+      );
+    }
+    if (normalized == 'pending' ||
+        normalized == 'processing' ||
+        normalized == 'in_review') {
+      return const _IndicatorStyle(
+        color: Color(0xFFC08A0A),
+        background: Color(0xFFFFF4DB),
+        icon: Icons.shield_outlined,
+      );
+    }
+    if (normalized == 'expired' ||
+        normalized == 'rejected' ||
+        normalized == 'inactive' ||
+        normalized == 'suspended') {
+      return const _IndicatorStyle(
+        color: Color(0xFFD64545),
+        background: Color(0xFFFBEFE8),
+        icon: Icons.shield_outlined,
+      );
+    }
+    return const _IndicatorStyle(
+      color: Color(0xFF5C6BF2),
+      background: Color(0xFFEFF2FF),
+      icon: Icons.shield_outlined,
+    );
+  }
+
+  _ActivityStyle _activityStyle(HomeActivityModel activity) {
+    final severity = activity.severity.toLowerCase().trim();
+    if (severity == 'success') {
+      return const _ActivityStyle(
+        icon: Icons.check_circle_outline,
+        iconColor: Color(0xFF1B8E3E),
+        iconBackground: Color(0xFFE8F7ED),
+      );
+    }
+    if (severity == 'warning') {
+      return const _ActivityStyle(
+        icon: Icons.warning_amber_rounded,
+        iconColor: Color(0xFFD58A19),
+        iconBackground: Color(0xFFFFF4DB),
+      );
+    }
+    if (severity == 'error' || severity == 'critical') {
+      return const _ActivityStyle(
+        icon: Icons.error_outline,
+        iconColor: Color(0xFFD64545),
+        iconBackground: Color(0xFFFBEFE8),
+      );
+    }
+    if (severity == 'info') {
+      return const _ActivityStyle(
+        icon: Icons.info_outline,
+        iconColor: Color(0xFF3F76F6),
+        iconBackground: Color(0xFFEFF2FF),
+      );
+    }
+    final type = activity.type.toLowerCase();
+    if (type.contains('license')) {
+      return const _ActivityStyle(
+        icon: Icons.shield_outlined,
+        iconColor: Color(0xFF5C6BF2),
+        iconBackground: Color(0xFFEFF2FF),
+      );
+    }
+    return const _ActivityStyle(
+      icon: Icons.notifications_none,
+      iconColor: Color(0xFF777777),
+      iconBackground: Color(0xFFEDEDED),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final controller = _controller;
+    final homeData = controller?.homeData ?? HomeResponseModel.empty();
+    final isLoading = controller?.isLoading ?? true;
+    final licenseState = homeData.licenseState;
+    final licenseStatusStyle = _licenseStatusStyle(licenseState?.licenseStatus);
+    final displayName = _displayName(licenseState?.fullName);
+    final licenseStatus = _formatStatus(licenseState?.licenseStatus);
+    final licenseAlerts = _licenseAlertsCount(homeData.recentActivity);
+    final ticketAlerts = homeData.ticketAlerts;
+    final unreadCount = homeData.recentActivity
+        .where((activity) => !activity.isRead)
+        .length;
+    final avatarUrl = licenseState?.userPhoto ?? '';
+    final hasAvatar = _isValidUrl(avatarUrl);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
@@ -43,23 +251,29 @@ class HomeScreen extends StatelessWidget {
                         Icons.notifications_none,
                         size: (size.width * 0.07).clamp(20.0, 28.0),
                       ),
-                      const Positioned(
-                        right: 4,
-                        top: 4,
-                        child: CircleAvatar(
-                          radius: 4,
-                          backgroundColor: Color(0xFFE65151),
+                      if (unreadCount > 0 || ticketAlerts > 0)
+                        const Positioned(
+                          right: 4,
+                          top: 4,
+                          child: CircleAvatar(
+                            radius: 4,
+                            backgroundColor: Color(0xFFE65151),
+                          ),
                         ),
-                      ),
                     ],
                   ),
                   const SizedBox(width: 10),
                   GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, AppRoutes.profile),
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.profile),
                     child: CircleAvatar(
                       radius: (size.width * 0.045).clamp(14.0, 20.0),
                       backgroundColor: const Color(0xFFE0E0E0),
-                      child: const Icon(Icons.person, color: Colors.white),
+                      backgroundImage:
+                          hasAvatar ? NetworkImage(avatarUrl) : null,
+                      child: hasAvatar
+                          ? null
+                          : const Icon(Icons.person, color: Colors.white),
                     ),
                   ),
                 ],
@@ -69,7 +283,7 @@ class HomeScreen extends StatelessWidget {
 
               /// ---------------- GREETING ----------------
               Text(
-                'Good Morning, John! 👋',
+                'Good Morning, $displayName! \u{1F44B}',
                 style: TextStyle(
                   fontSize: (size.width * 0.02).clamp(18.0, 26.0),
                   fontWeight: FontWeight.w600,
@@ -90,14 +304,14 @@ class HomeScreen extends StatelessWidget {
               _StatusCard(
                 size: size,
                 title: 'Licence Status',
-                value: 'Active',
-                valueColor: const Color(0xFF1B8E3E),
+                value: licenseStatus,
+                valueColor: licenseStatusStyle.color,
                 icon: Icon(
-                  Icons.shield_outlined,
-                  color: const Color(0xFF1B8E3E),
+                  licenseStatusStyle.icon,
+                  color: licenseStatusStyle.color,
                   size: size.width * 0.08,
                 ),
-                iconBackground: const Color(0xFFE8F7ED),
+                iconBackground: licenseStatusStyle.background,
               ),
 
               SizedBox(height: size.height * 0.015),
@@ -105,7 +319,7 @@ class HomeScreen extends StatelessWidget {
               _StatusCard(
                 size: size,
                 title: 'Licence Alerts',
-                value: '2',
+                value: licenseAlerts.toString(),
                 valueColor: const Color(0xFFD64545),
                 icon: Icon(
                   Icons.warning_amber_rounded,
@@ -117,11 +331,10 @@ class HomeScreen extends StatelessWidget {
 
               SizedBox(height: size.height * 0.015),
 
-              /// IMAGE USED HERE ✅
               _StatusCard(
                 size: size,
                 title: 'Open Tickets',
-                value: '1',
+                value: ticketAlerts.toString(),
                 valueColor: const Color(0xFF5C6BF2),
                 icon: Image.asset(
                   'assets/images/mynaui_shield.png',
@@ -233,29 +446,71 @@ class HomeScreen extends StatelessWidget {
               ),
               SizedBox(height: size.height * 0.02),
 
-              _ActivityTile(
-                size: size,
-                title: 'License verification completed',
-                subtitle: '2 hours ago',
-                icon: Icons.check_circle_outline,
-                iconColor: const Color(0xFF1B8E3E),
-                iconBackground: const Color(0xFFE8F7ED),
-              ),
-              SizedBox(height: size.height * 0.015),
-              _ActivityTile(
-                size: size,
-                title: 'Ticket assistance request submitted',
-                subtitle: '2 hours ago',
-                icon: Icons.access_time,
-                iconColor: const Color(0xFF3F76F6),
-                iconBackground: const Color(0xFFEFF2FF),
-              ),
+              if (isLoading && homeData.recentActivity.isEmpty)
+                const Center(child: CircularProgressIndicator())
+              else if (homeData.recentActivity.isEmpty)
+                const Center(
+                  child: Text(
+                    'No recent activity',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF777777),
+                    ),
+                  ),
+                )
+              else
+                Column(
+                  children: List.generate(homeData.recentActivity.length,
+                      (index) {
+                    final activity = homeData.recentActivity[index];
+                    final style = _activityStyle(activity);
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: index == homeData.recentActivity.length - 1
+                            ? 0
+                            : size.height * 0.015,
+                      ),
+                      child: _ActivityTile(
+                        size: size,
+                        title: _formatActivityTitle(activity),
+                        subtitle: _formatActivitySubtitle(activity),
+                        icon: style.icon,
+                        iconColor: style.iconColor,
+                        iconBackground: style.iconBackground,
+                      ),
+                    );
+                  }),
+                ),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+class _IndicatorStyle {
+  final Color color;
+  final Color background;
+  final IconData icon;
+
+  const _IndicatorStyle({
+    required this.color,
+    required this.background,
+    required this.icon,
+  });
+}
+
+class _ActivityStyle {
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBackground;
+
+  const _ActivityStyle({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBackground,
+  });
 }
 
 /// ================= STATUS CARD =================
