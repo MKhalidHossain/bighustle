@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../../../core/helpers/handle_fold.dart';
 import '../../../core/notifiers/button_status_notifier.dart';
 import '../../../core/notifiers/snackbar_notifier.dart';
-import '../interface/profile_interface.dart';
 // import '../model/verify_email_request_model.dart';
 
 class VerifyEmailController extends ChangeNotifier {
