@@ -15,6 +15,7 @@ class ProfileResponseModel {
   final bool isEmailVerified;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final DateTime? dateOfBirth;
 
   const ProfileResponseModel({
     required this.id,
@@ -33,6 +34,7 @@ class ProfileResponseModel {
     required this.isEmailVerified,
     required this.createdAt,
     required this.updatedAt,
+    required this.dateOfBirth,
   });
 
   factory ProfileResponseModel.fromJson(Map<String, dynamic> json) {
@@ -84,6 +86,7 @@ class ProfileResponseModel {
       isEmailVerified: readBool(json['isEmailVerified']),
       createdAt: readDate(json['createdAt']),
       updatedAt: readDate(json['updatedAt']),
+      dateOfBirth: readDate(json['dob']),
     );
   }
 }

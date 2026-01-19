@@ -80,10 +80,13 @@ base class ApiEndpoints {
   static const String getCurrentProfile = _User.getCurrentProfile;
 
   /// ### put
-  static const String editProfile = _User.editProfile;
+  static const String editProfile = _User.updateProfile;
 
   /// ### put
   static const String uploadProfileAvatar = _User.uploadProfileAvatar;
+
+  /// ### put
+  static const String updateNotificationSettings = _User.updateSettings;
 
   /// ### get
   static const String history = _User.history;
@@ -194,11 +197,15 @@ base class ApiEndpoints {
       _Ticket.getTicketById(ticketId);
 }
 
-//arrow360degree@gmail.com
+class _RemoteServer {
+  static const String socketUrl = 'https://ursffiver-backend.onrender.com';
+
+  static const String baseUrl = 'https://ursffiver-backend.onrender.com/api/v1';
+}
 
 class _LocalHostWifi {
   static const String socketUrl = 'http://localhost:5003';
-  static const String baseUrl = 'http://10.10.5.94:5000/api/v1';
+  static const String baseUrl = 'http://10.10.5.85:5000/api/v1';
 }
 
 class _Auth {
@@ -264,8 +271,9 @@ class _User {
   static String getuserbyId(String id) => '$_userRoute/single-user/$id';
   static const String getCurrentProfile = '$_userRoute/profile';
 
-  static const String editProfile = '$_userRoute/update-profile';
+  static const String updateProfile = '$_userRoute/profile';
   static const String uploadProfileAvatar = '$_userRoute/upload-avatar';
+  static const String updateSettings = '$_userRoute/settings';
   static const String history = '$_userRoute/history';
   static const String allUser = '$_userRoute/all-user';
   static const String setVisibility = '$_userRoute/visibility';
