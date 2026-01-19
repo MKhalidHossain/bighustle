@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import 'profile_response_model.dart';
+
 class ProfileData extends ChangeNotifier {
   ProfileData._();
 
@@ -12,6 +14,7 @@ class ProfileData extends ChangeNotifier {
   String dateOfBirth = '19th July, 1990';
   String email = 'josh@gmail.com';
   String userId = '12345678';
+  String avatarUrl = '';
   String? avatarPath;
 
   void updateProfile({
@@ -25,15 +28,27 @@ class ProfileData extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateFromProfile(ProfileResponseModel profile) {
+    name = profile.name.isNotEmpty ? profile.name : name;
+    phone = profile.phone.isNotEmpty ? profile.phone : phone;
+    email = profile.email.isNotEmpty ? profile.email : email;
+    userId = profile.id.isNotEmpty ? profile.id : userId;
+    avatarUrl = profile.avatarUrl;
+    notifyListeners();
+  }
+
   void updateAvatar(String path) {
     avatarPath = path;
     notifyListeners();
   }
 
   ImageProvider? get avatarImageProvider {
-    if (avatarPath == null || avatarPath!.isEmpty) {
+    if (avatarPath != null && avatarPath!.isNotEmpty) {
+      return FileImage(File(avatarPath!));
+    }
+    if (avatarUrl.isEmpty) {
       return null;
     }
-    return FileImage(File(avatarPath!));
+    return NetworkImage(avatarUrl);
   }
 }

@@ -4,6 +4,8 @@ import '../../moduls/auth/implement/auth_interface_impl.dart';
 import '../../moduls/auth/interface/auth_interface.dart';
 import '../../moduls/license/implement/license_interface_impl.dart';
 import '../../moduls/license/interface/license_interface.dart';
+import '../../moduls/profile/implement/profile_interface_impl.dart';
+import '../../moduls/profile/interface/profile_interface.dart';
 import '../services/app_pigeon/app_pigeon.dart';
 
 void initServices() {
@@ -12,5 +14,8 @@ void initServices() {
   );
   Get.put<LicenseInterface>(
     LicenseInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
+  );
+  Get.put<ProfileInterface>(
+    ProfileInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
   );
 }
