@@ -2,6 +2,10 @@ import 'package:get/get.dart';
 
 import '../../moduls/auth/implement/auth_interface_impl.dart';
 import '../../moduls/auth/interface/auth_interface.dart';
+import '../../moduls/home/implement/home_interface_impl.dart';
+import '../../moduls/home/interface/home_interface.dart';
+import '../../moduls/home/implement/teen_driver_experience_interface_impl.dart';
+import '../../moduls/home/interface/teen_driver_experience_interface.dart';
 import '../../moduls/license/implement/license_interface_impl.dart';
 import '../../moduls/license/interface/license_interface.dart';
 import '../../moduls/profile/implement/profile_interface_impl.dart';
@@ -25,7 +29,7 @@ void initServices() {
   Get.put<TicketInterface>(
     TicketInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
   );
-  Get.put<NotificationInterface>(
-    NotificationInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
+  Get.put<HomeInterface>(
+    HomeInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
   );
 }

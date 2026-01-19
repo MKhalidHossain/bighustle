@@ -180,6 +180,10 @@ base class ApiEndpoints {
   /// ### get
   static const String getAlerts = _Alerts.getAlerts;
 
+  // ---------------------- HOME -----------------------------
+  /// ### get
+  static const String getHome = _Home.getHome;
+
   // ---------------------- TICKET -----------------------------
   /// ### get
   static String getMyTickets({String? status}) =>
@@ -194,7 +198,7 @@ base class ApiEndpoints {
 
 class _LocalHostWifi {
   static const String socketUrl = 'http://localhost:5003';
-  static const String baseUrl = 'http://10.10.5.85:5000/api/v1';
+  static const String baseUrl = 'http://10.10.5.94:5000/api/v1';
 }
 
 class _Auth {
@@ -293,6 +297,12 @@ class _TeenDriverExperience {
 class _Alerts {
   static const String _alertsRoute = '${ApiEndpoints.baseUrl}/alerts';
   static const String getAlerts = '$_alertsRoute/me';
+}
+
+// ---------------------- HOME -----------------------------
+class _Home {
+  static const String _homeRoute = '${ApiEndpoints.baseUrl}/user/home';
+  static const String getHome = _homeRoute;
 }
 
 // ---------------------- TICKET -----------------------------
