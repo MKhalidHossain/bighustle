@@ -9,11 +9,17 @@ class ProfileData extends ChangeNotifier {
 
   static final ProfileData instance = ProfileData._();
 
-  String name = 'Jenny Wilson';
-  String phone = '+764782642';
-  String dateOfBirth = '19th July, 1990';
-  String email = 'josh@gmail.com';
-  String userId = '12345678';
+  static const String _defaultName = 'Profile Name';
+  static const String _defaultPhone = 'N/A';
+  static const String _defaultDateOfBirth = 'N/A';
+  static const String _defaultEmail = 'N/A';
+  static const String _defaultUserId = 'N/A';
+
+  String name = _defaultName;
+  String phone = _defaultPhone;
+  String dateOfBirth = _defaultDateOfBirth;
+  String email = _defaultEmail;
+  String userId = _defaultUserId;
   String avatarUrl = '';
   String? avatarPath;
   bool ticketAlerts = false;
@@ -35,11 +41,12 @@ class ProfileData extends ChangeNotifier {
   }
 
   void updateFromProfile(ProfileResponseModel profile) {
-    name = profile.name.isNotEmpty ? profile.name : name;
-    phone = profile.phone.isNotEmpty ? profile.phone : phone;
-    email = profile.email.isNotEmpty ? profile.email : email;
-    userId = profile.id.isNotEmpty ? profile.id : userId;
+    name = profile.name.isNotEmpty ? profile.name : _defaultName;
+    phone = profile.phone.isNotEmpty ? profile.phone : _defaultPhone;
+    email = profile.email.isNotEmpty ? profile.email : _defaultEmail;
+    userId = profile.id.isNotEmpty ? profile.id : _defaultUserId;
     avatarUrl = profile.avatarUrl;
+    avatarPath = null;
     ticketAlerts = profile.ticketAlerts;
     licenseExpiryAlerts = profile.licenseExpiryAlerts;
     inactiveAlerts = profile.inactiveAlerts;
@@ -51,7 +58,26 @@ class ProfileData extends ChangeNotifier {
           '${date.year.toString().padLeft(4, '0')}-'
           '${date.month.toString().padLeft(2, '0')}-'
           '${date.day.toString().padLeft(2, '0')}';
+    } else {
+      dateOfBirth = _defaultDateOfBirth;
     }
+    hasLoaded = true;
+    notifyListeners();
+  }
+
+  void resetDefaults() {
+    name = _defaultName;
+    phone = _defaultPhone;
+    dateOfBirth = _defaultDateOfBirth;
+    email = _defaultEmail;
+    userId = _defaultUserId;
+    avatarUrl = '';
+    avatarPath = null;
+    ticketAlerts = false;
+    licenseExpiryAlerts = false;
+    inactiveAlerts = false;
+    teenDriverAlerts = false;
+    communityAlerts = false;
     hasLoaded = true;
     notifyListeners();
   }

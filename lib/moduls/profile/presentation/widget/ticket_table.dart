@@ -46,10 +46,16 @@ class TicketRow extends StatelessWidget {
     super.key,
     required this.status,
     required this.statusColor,
+    required this.ticketId,
+    required this.location,
+    required this.fee,
   });
 
   final String status;
   final Color statusColor;
+  final String ticketId;
+  final String location;
+  final String fee;
 
   @override
   Widget build(BuildContext context) {
@@ -77,20 +83,20 @@ class TicketRow extends StatelessWidget {
               ],
             ),
           ),
-          const Expanded(
+          Expanded(
             flex: 3,
-            child: Text('#TK-452566', style: TextStyle(fontSize: 12)),
+            child: Text(ticketId, style: const TextStyle(fontSize: 12)),
           ),
-          const Expanded(
+          Expanded(
             flex: 2,
-            child: Text('Berlin', style: TextStyle(fontSize: 12)),
+            child: Text(location, style: const TextStyle(fontSize: 12)),
           ),
-          const Expanded(
+          Expanded(
             flex: 2,
             child: Text(
-              '\$250.00',
+              fee,
               textAlign: TextAlign.end,
-              style: TextStyle(fontSize: 12),
+              style: const TextStyle(fontSize: 12),
             ),
           ),
         ],
