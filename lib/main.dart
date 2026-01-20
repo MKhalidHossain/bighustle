@@ -106,7 +106,12 @@ class MyApp extends StatelessWidget {
               builder: (_) => const LearningVideoScreen(),
             );
           case AppRoutes.license:
-            return MaterialPageRoute(builder: (_) => const LicenseScreen());
+            final showBackButton = settings.arguments is bool
+                ? settings.arguments as bool
+                : true; // Default to true for route navigation
+            return MaterialPageRoute(
+              builder: (_) => LicenseScreen(showBackButton: showBackButton),
+            );
           case AppRoutes.licenseAlerts:
             return MaterialPageRoute(
               builder: (_) => const LicenseAlertsScreen(),
@@ -116,7 +121,12 @@ class MyApp extends StatelessWidget {
               builder: (_) => const EditLicenseInfoScreen(),
             );
           case AppRoutes.ticket:
-            return MaterialPageRoute(builder: (_) => const TicketScreen());
+            final showBackButton = settings.arguments is bool
+                ? settings.arguments as bool
+                : true; // Default to true for route navigation
+            return MaterialPageRoute(
+              builder: (_) => TicketScreen(showBackButton: showBackButton),
+            );
           case AppRoutes.ticketDetails:
             final ticketId = settings.arguments is String
                 ? settings.arguments as String

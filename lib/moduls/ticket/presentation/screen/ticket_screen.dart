@@ -8,7 +8,9 @@ import '../widget/ticket_summary_card.dart';
 import '../../model/ticket_model.dart';
 
 class TicketScreen extends StatefulWidget {
-  const TicketScreen({super.key});
+  final bool showBackButton;
+  
+  const TicketScreen({super.key, this.showBackButton = false});
 
   @override
   State<TicketScreen> createState() => _TicketScreenState();
@@ -57,6 +59,25 @@ class _TicketScreenState extends State<TicketScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
+      appBar: widget.showBackButton
+          ? AppBar(
+              backgroundColor: const Color(0xFFF2F2F2),
+              elevation: 0,
+              centerTitle: true,
+              automaticallyImplyLeading: true,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              title: const Text(
+                'Ticket',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            )
+          : null,
       body: SafeArea(
         child: ValueListenableBuilder<bool>(
           valueListenable: TicketController.isLoading,
@@ -88,15 +109,17 @@ class _TicketScreenState extends State<TicketScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 10),
                             children: [
-                              const SizedBox(height: 6),
-                              const Center(
-                                child: Text(
-                                  'Ticket',
-                                  style: TextStyle(
-                                      fontSize: 18, fontWeight: FontWeight.w600),
+                              if (!widget.showBackButton) ...[
+                                const SizedBox(height: 6),
+                                const Center(
+                                  child: Text(
+                                    'Ticket',
+                                    style: TextStyle(
+                                        fontSize: 18, fontWeight: FontWeight.w600),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 18),
+                                const SizedBox(height: 18),
+                              ],
                               TicketSummaryCard(
                                 openTickets: summary.openTickets,
                                 totalDue: _formatCurrency(summary.totalDue),
