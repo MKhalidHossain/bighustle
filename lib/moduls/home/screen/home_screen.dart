@@ -54,12 +54,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _controller!.loadHomeData();
   }
 
-  void _showMessage(BuildContext context, String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-  }
-
   bool _isValidUrl(String? url) {
     if (url == null) return false;
     final trimmedUrl = url.trim();
@@ -216,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final licenseStatus = _formatStatus(licenseState?.licenseStatus);
     final licenseAlerts = _licenseAlertsCount(homeData.recentActivity);
     final ticketAlerts = homeData.ticketAlerts;
-    final unreadCount = homeData.recentActivity
+     homeData.recentActivity
         .where((activity) => !activity.isRead)
         .length;
     final avatarUrl = licenseState?.userPhoto ?? '';
@@ -372,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: const Color(0xFF1B8E3E),
                     ),
                     iconBackground: const Color(0xFFE8F7ED),
-                    onTap: () => _showMessage(context, 'Licence Status'),
+                    onTap: () => Navigator.pushNamed(context, AppRoutes.license),
                   ),
 
                   _QuickAccessCard(
@@ -385,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: const Color(0xFF5C6BF2),
                     ),
                     iconBackground: const Color(0xFFEFF2FF),
-                    onTap: () => _showMessage(context, 'Ticket Assistance'),
+                    onTap: () => Navigator.pushNamed(context, AppRoutes.ticket),
                   ),
 
                   _QuickAccessCard(

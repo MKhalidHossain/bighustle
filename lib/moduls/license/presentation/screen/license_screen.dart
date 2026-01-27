@@ -8,7 +8,9 @@ import '../widget/license_info_card.dart';
 import '../widget/license_status_card.dart';
 
 class LicenseScreen extends StatefulWidget {
-  const LicenseScreen({super.key});
+  final bool showBackButton;
+  
+  const LicenseScreen({super.key, this.showBackButton = false});
 
   @override
   State<LicenseScreen> createState() => _LicenseScreenState();
@@ -53,7 +55,13 @@ class _LicenseScreenState extends State<LicenseScreen> {
         backgroundColor: const Color(0xFFF2F2F2),
         elevation: 0,
         centerTitle: true,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: widget.showBackButton,
+        leading: widget.showBackButton
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
         title: const Text(
           'License',
           style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87),
