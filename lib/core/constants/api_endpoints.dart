@@ -204,8 +204,10 @@ base class ApiEndpoints {
 
 class _LocalHostWifi {
   static const String socketUrl = 'https://backend-bigghustle.onrender.com';
-  static const String baseUrl = 'https://backend-bigghustle.onrender.com/api/v1';
+  // static const String baseUrl = 'https://backend-bigghustle.onrender.com/api/v1';
+  static const String baseUrl = 'http://10.10.5.85:5000/api/v1';
 }
+
 
 
 
