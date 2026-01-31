@@ -160,7 +160,7 @@ base class ApiEndpoints {
 
   // ---------------------- LICENSE -----------------------------
   /// ### get
-  static String getLicense = _License._licenseRoute;
+  static const String getLicense = _License.get;
 
   // ---------------------- TEEN DRIVER EXPERIENCE -----------------------------
   /// ### post
@@ -293,6 +293,7 @@ class _User {
 // ---------------------- LICENSE -----------------------------
 class _License {
   static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
+  static const String get = '$_licenseRoute/me';
   static const String create = '$_licenseRoute/create';
   static String update(String userId) => '$_licenseRoute/$userId';
 }
