@@ -217,6 +217,7 @@ class _LiveHostUrls {
 
 
 
+
 class _Auth {
   @protected
   static const String _authRoute = '${ApiEndpoints.baseUrl}/auth';
