@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 base class ApiEndpoints {
-  static const String socketUrl = _LocalHostWifi.socketUrl;
+  static const String socketUrl = _LiveHostUrls.socketUrl;
 
-  static const String baseUrl = _LocalHostWifi.baseUrl;
+  static const String baseUrl = _LiveHostUrls.baseUrl;
 
   /// ### post
   static const String login = _Auth.login;
@@ -160,7 +160,7 @@ base class ApiEndpoints {
 
   // ---------------------- LICENSE -----------------------------
   /// ### get
-  static String getLicense = _License._licenseRoute;
+  static const String getLicense = _License.get;
 
   // ---------------------- TEEN DRIVER EXPERIENCE -----------------------------
   /// ### post
@@ -203,10 +203,16 @@ base class ApiEndpoints {
 
 
 class _LocalHostWifi {
-  static const String socketUrl = 'https://backend-bigghustle.onrender.com';
-  // static const String baseUrl = 'https://backend-bigghustle.onrender.com/api/v1';
+  static const String socketUrl = 'https://backend-bigghustle-icpx.onrender.com';
+  //  static const String baseUrl = 'https://backend-bigghustle-icpx.onrender.com/api/v1';
   static const String baseUrl = 'http://10.10.5.85:5000/api/v1';
 }
+class _LiveHostUrls {
+  static const String socketUrl = 'https://backend-bigghustle-icpx.onrender.com';
+   static const String baseUrl = 'https://backend-bigghustle-icpx.onrender.com/api/v1';
+  //static const String baseUrl = 'http://10.10.5.85:5000/api/v1';
+}
+
 
 
 
@@ -288,6 +294,7 @@ class _User {
 // ---------------------- LICENSE -----------------------------
 class _License {
   static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
+  static const String get = '$_licenseRoute/me';
   static const String create = '$_licenseRoute/create';
   static String update(String userId) => '$_licenseRoute/$userId';
 }
