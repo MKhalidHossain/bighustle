@@ -146,6 +146,34 @@ class _SignupScreenState extends State<SignupScreen> {
                     : null,
                 isLoading: _controller.isBusy,
               ),
+              SizedBox(height: size.height * 0.02),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Already have an account?',
+                    style: TextStyle(
+                      fontSize: (size.width * 0.04).clamp(12.0, 16.0),
+                      color: AuthColors.textMuted,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.login);
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: AuthColors.primary,
+                    ),
+                    child: Text(
+                      'Login',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.04).clamp(12.0, 16.0),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

@@ -25,14 +25,46 @@ class _AddLicenseInfoScreenState extends State<AddLicenseInfoScreen> {
   final _fullNameController = TextEditingController();
   final _userPhotoController = TextEditingController();
   final _licenseNumberController = TextEditingController();
-  final _stateController = TextEditingController();
   final _dateOfBirthController = TextEditingController();
   final _expiryDateController = TextEditingController();
-  final _licenseClassController = TextEditingController();
   final _licensePhotoController = TextEditingController();
   late final LicenseCreateController _controller;
   bool _initialized = false;
   bool _isSubmitting = false;
+  String? _selectedState;
+  String? _selectedLicenseClass;
+
+  static const List<String> _stateAndCountryOptions = [
+    'Alabama (US)',
+    'Alaska (US)',
+    'Arizona (US)',
+    'California (US)',
+    'Colorado (US)',
+    'Florida (US)',
+    'Georgia (US)',
+    'Illinois (US)',
+    'New York (US)',
+    'Texas (US)',
+    'Washington (US)',
+    'Canada',
+    'Mexico',
+    'United Kingdom',
+    'Australia',
+    'India',
+    'Philippines',
+    'Nigeria',
+    'Other',
+  ];
+
+  static const List<String> _licenseClassOptions = [
+    'Class A',
+    'Class B',
+    'Class C',
+    'Class D',
+    'Class E',
+    'Class M',
+    'CDL',
+  ];
 
   void _onControllerUpdate() {
     if (mounted) {
@@ -60,10 +92,8 @@ class _AddLicenseInfoScreenState extends State<AddLicenseInfoScreen> {
     _fullNameController.dispose();
     _userPhotoController.dispose();
     _licenseNumberController.dispose();
-    _stateController.dispose();
     _dateOfBirthController.dispose();
     _expiryDateController.dispose();
-    _licenseClassController.dispose();
     _licensePhotoController.dispose();
     if (_initialized) {
       _controller.removeListener(_onControllerUpdate);
@@ -101,6 +131,50 @@ class _AddLicenseInfoScreenState extends State<AddLicenseInfoScreen> {
     setState(() => _isSubmitting = false);
     if (success) {
       // keep inputs intact for now
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    final year = date.year.toString();
+    return '$month/$day/$year';
+  }
+
+  DateTime? _tryParseDate(String value) {
+    final parts = value.split('/');
+    if (parts.length != 3) return null;
+    final month = int.tryParse(parts[0]);
+    final day = int.tryParse(parts[1]);
+    final year = int.tryParse(parts[2]);
+    if (month == null || day == null || year == null) return null;
+    return DateTime(year, month, day);
+  }
+
+  Future<void> _pickDate({
+    required TextEditingController controller,
+    required bool isDob,
+  }) async {
+    final now = DateTime.now();
+    final existing = _tryParseDate(controller.text);
+    final initialDate = existing ?? (isDob ? DateTime(1990, 1, 1) : now);
+    final firstDate = DateTime(1900);
+    final lastDate = isDob ? now : DateTime(2100);
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+    if (picked == null) return;
+
+    final formatted = _formatDate(picked);
+    controller.text = formatted;
+    if (isDob) {
+      _controller.dateOfBirth = formatted;
+    } else {
+      _controller.expiryDate = formatted;
     }
   }
 
@@ -156,42 +230,60 @@ class _AddLicenseInfoScreenState extends State<AddLicenseInfoScreen> {
               onChanged: (value) => _controller.licenseNumber = value,
             ),
             const SizedBox(height: 14),
-            _LabeledInput(
-              label: 'State',
-              hintText: 'Select State',
-              controller: _stateController,
-              onChanged: (value) => _controller.state = value,
-              suffixIcon: const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: Color(0xFF4A4A4A),
-              ),
+            _LabeledDropdown(
+              label: 'State / Country',
+              hintText: 'Select State or Country',
+              value: _selectedState,
+              items: _stateAndCountryOptions,
+              onChanged: (value) {
+                setState(() => _selectedState = value);
+                if (value != null) {
+                  _controller.state = value;
+                }
+              },
             ),
             const SizedBox(height: 14),
             _LabeledInput(
               label: 'Date of Birth',
               hintText: 'MM/DD/YYYY',
               controller: _dateOfBirthController,
-              keyboardType: TextInputType.datetime,
-              onChanged: (value) => _controller.dateOfBirth = value,
+              readOnly: true,
+              onTap: () => _pickDate(
+                controller: _dateOfBirthController,
+                isDob: true,
+              ),
+              suffixIcon: const Icon(
+                Icons.calendar_month_outlined,
+                color: Color(0xFF4A4A4A),
+              ),
             ),
             const SizedBox(height: 14),
             _LabeledInput(
               label: 'Expiration Date',
               hintText: 'MM/DD/YYYY',
               controller: _expiryDateController,
-              keyboardType: TextInputType.datetime,
-              onChanged: (value) => _controller.expiryDate = value,
-            ),
-            const SizedBox(height: 14),
-            _LabeledInput(
-              label: 'License Class',
-              hintText: 'Select Class',
-              controller: _licenseClassController,
-              onChanged: (value) => _controller.licenseClass = value,
+              readOnly: true,
+              onTap: () => _pickDate(
+                controller: _expiryDateController,
+                isDob: false,
+              ),
               suffixIcon: const Icon(
-                Icons.keyboard_arrow_down_rounded,
+                Icons.calendar_month_outlined,
                 color: Color(0xFF4A4A4A),
               ),
+            ),
+            const SizedBox(height: 14),
+            _LabeledDropdown(
+              label: 'License Class',
+              hintText: 'Select Class',
+              value: _selectedLicenseClass,
+              items: _licenseClassOptions,
+              onChanged: (value) {
+                setState(() => _selectedLicenseClass = value);
+                if (value != null) {
+                  _controller.licenseClass = value;
+                }
+              },
             ),
             const SizedBox(height: 14),
             _LabeledInput(
@@ -304,6 +396,73 @@ class _LabeledInput extends StatelessWidget {
               borderSide: const BorderSide(color: _fieldBorderColor),
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LabeledDropdown extends StatelessWidget {
+  const _LabeledDropdown({
+    required this.label,
+    required this.hintText,
+    required this.items,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String hintText;
+  final List<String> items;
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: _fieldLabelColor,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: value,
+          isExpanded: true,
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Color(0xFF4A4A4A),
+          ),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: const TextStyle(color: _fieldHintColor),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: _fieldBorderColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: _fieldBorderColor),
+            ),
+          ),
+          items: items
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(item),
+                ),
+              )
+              .toList(),
+          onChanged: onChanged,
         ),
       ],
     );

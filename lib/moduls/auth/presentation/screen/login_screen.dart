@@ -18,11 +18,18 @@ class _LoginScreenState extends State<LoginScreen> {
   late final LoginsScreenController _controller;
   bool _initialized = false;
   bool _isLoading = false;
+  String? _emailError;
+  String? _passwordError;
 
   void _onControllerUpdate() {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  bool _isValidEmail(String email) {
+    final regex = RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[A-Za-z]{2,}$');
+    return regex.hasMatch(email);
   }
 
   @override
@@ -49,14 +56,27 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter email and password.')),
-      );
+    String? emailError;
+    String? passwordError;
+    if (!_isValidEmail(email)) {
+      emailError = 'Mail is incorrect';
+    }
+    if (password.isEmpty) {
+      passwordError = 'Entered password incorrect';
+    }
+    if (emailError != null || passwordError != null) {
+      setState(() {
+        _emailError = emailError;
+        _passwordError = passwordError;
+      });
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _emailError = null;
+      _passwordError = null;
+      _isLoading = true;
+    });
     final success = await _controller.login(
       needVerification: () {
         Navigator.pushNamed(
@@ -72,6 +92,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
     if (success) {
       Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } else if (ModalRoute.of(context)?.isCurrent ?? true) {
+      setState(() {
+        _passwordError = 'Entered password incorrect';
+      });
     }
   }
 
@@ -118,20 +142,32 @@ class _LoginScreenState extends State<LoginScreen> {
                 size: size,
                 controller: _emailController,
                 hintText: 'Email',
+                errorText: _emailError,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.email],
-                onChanged: (value) => _controller.email = value,
+                onChanged: (value) {
+                  _controller.email = value;
+                  if (_emailError != null) {
+                    setState(() => _emailError = null);
+                  }
+                },
               ),
               SizedBox(height: size.height * 0.02),
               AuthTextField(
                 size: size,
                 controller: _passwordController,
                 hintText: 'Password',
+                errorText: _passwordError,
                 isPassword: true,
                 textInputAction: TextInputAction.done,
                 autofillHints: const [AutofillHints.password],
-                onChanged: (value) => _controller.password = value,
+                onChanged: (value) {
+                  _controller.password = value;
+                  if (_passwordError != null) {
+                    setState(() => _passwordError = null);
+                  }
+                },
               ),
               Align(
                 alignment: Alignment.centerRight,
@@ -157,6 +193,34 @@ class _LoginScreenState extends State<LoginScreen> {
                 label: 'Login',
                 onPressed: _controller.canSubmit && !_isLoading ? _submit : null,
                 isLoading: _isLoading,
+              ),
+              SizedBox(height: size.height * 0.02),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don't have an account?",
+                    style: TextStyle(
+                      fontSize: (size.width * 0.04).clamp(12.0, 16.0),
+                      color: AuthColors.textMuted,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.signup);
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: AuthColors.primary,
+                    ),
+                    child: Text(
+                      'Sign up',
+                      style: TextStyle(
+                        fontSize: (size.width * 0.04).clamp(12.0, 16.0),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
