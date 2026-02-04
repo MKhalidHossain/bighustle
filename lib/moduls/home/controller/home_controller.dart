@@ -12,15 +12,29 @@ class HomeController extends ChangeNotifier {
 
   bool _isLoading = false;
   HomeResponseModel _homeData = HomeResponseModel.empty();
+  bool _isDisposed = false;
 
   bool get isLoading => _isLoading;
   HomeResponseModel get homeData => _homeData;
 
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  void _safeNotify() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
+
   Future<void> loadHomeData() async {
     _isLoading = true;
-    notifyListeners();
+    _safeNotify();
 
     final result = await Get.find<HomeInterface>().getHomeData();
+    if (_isDisposed) return;
 
     result.fold(
       (failure) {
@@ -36,6 +50,6 @@ class HomeController extends ChangeNotifier {
     );
 
     _isLoading = false;
-    notifyListeners();
+    _safeNotify();
   }
 }

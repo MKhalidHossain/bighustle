@@ -45,6 +45,7 @@ class AuthTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
   final Iterable<String>? autofillHints;
+  final String? errorText;
 
   const AuthTextField({
     super.key,
@@ -57,6 +58,7 @@ class AuthTextField extends StatefulWidget {
     this.validator,
     this.onChanged,
     this.autofillHints,
+    this.errorText,
   });
 
   @override
@@ -87,6 +89,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
           color: AuthColors.textMuted,
           fontSize: (widget.size.width * 0.045).clamp(14.0, 18.0),
         ),
+        errorText: widget.errorText,
         filled: true,
         fillColor: AuthColors.fieldFill,
         contentPadding: EdgeInsets.symmetric(
