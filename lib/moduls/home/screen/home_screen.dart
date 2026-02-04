@@ -8,6 +8,8 @@ import '../controller/home_controller.dart';
 import '../implement/home_interface_impl.dart';
 import '../interface/home_interface.dart';
 import '../model/home_response_model.dart';
+import '../../profile/controller/profile_info_controller.dart';
+import '../../profile/model/profile_data.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,14 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _controller = HomeController(snackbarNotifier: _snackbarNotifier!);
     _controller!.addListener(_onControllerUpdate);
     _controller!.loadHomeData();
-  }
 
-  bool _isValidUrl(String? url) {
-    if (url == null) return false;
-    final trimmedUrl = url.trim();
-    if (trimmedUrl.isEmpty) return false;
-    return trimmedUrl.startsWith('http://') ||
-        trimmedUrl.startsWith('https://');
+    if (!ProfileData.instance.hasLoaded &&
+        !ProfileInfoController.isLoading.value) {
+      ProfileInfoController.loadProfile(snackbarNotifier: _snackbarNotifier);
+    }
   }
 
   String _displayName(String? name) {
@@ -204,6 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final controller = _controller;
     final homeData = controller?.homeData ?? HomeResponseModel.empty();
     final isLoading = controller?.isLoading ?? true;
+    final hasLoaded = controller?.hasLoaded ?? false;
     final licenseState = homeData.licenseState;
     final licenseStatusStyle = _licenseStatusStyle(licenseState?.licenseStatus);
     final displayName = _displayName(licenseState?.fullName);
@@ -213,8 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
      homeData.recentActivity
         .where((activity) => !activity.isRead)
         .length;
-    final avatarUrl = licenseState?.userPhoto ?? '';
-    final hasAvatar = _isValidUrl(avatarUrl);
+    final profileData = ProfileData.instance;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
@@ -262,14 +261,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   GestureDetector(
                     onTap: () =>
                         Navigator.pushNamed(context, AppRoutes.profile),
-                    child: CircleAvatar(
-                      radius: (size.width * 0.045).clamp(14.0, 20.0),
-                      backgroundColor: const Color(0xFFE0E0E0),
-                      backgroundImage:
-                          hasAvatar ? NetworkImage(avatarUrl) : null,
-                      child: hasAvatar
-                          ? null
-                          : const Icon(Icons.person, color: Colors.white),
+                    child: AnimatedBuilder(
+                      animation: profileData,
+                      builder: (context, _) {
+                        final avatarProvider =
+                            profileData.avatarImageProvider;
+                        return CircleAvatar(
+                          radius: (size.width * 0.045).clamp(14.0, 20.0),
+                          backgroundColor: const Color(0xFFE0E0E0),
+                          backgroundImage: avatarProvider,
+                          child: avatarProvider == null
+                              ? const Icon(Icons.person, color: Colors.white)
+                              : null,
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -442,7 +447,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: size.height * 0.02),
 
-              if (isLoading && homeData.recentActivity.isEmpty)
+              if (isLoading && !hasLoaded && homeData.recentActivity.isEmpty)
                 const Center(child: CircularProgressIndicator())
               else if (homeData.recentActivity.isEmpty)
                 const Center(
