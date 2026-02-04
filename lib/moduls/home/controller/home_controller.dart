@@ -13,9 +13,11 @@ class HomeController extends ChangeNotifier {
   bool _isLoading = false;
   HomeResponseModel _homeData = HomeResponseModel.empty();
   bool _isDisposed = false;
+  bool _hasLoaded = false;
 
   bool get isLoading => _isLoading;
   HomeResponseModel get homeData => _homeData;
+  bool get hasLoaded => _hasLoaded;
 
   @override
   void dispose() {
@@ -33,23 +35,26 @@ class HomeController extends ChangeNotifier {
     _isLoading = true;
     _safeNotify();
 
-    final result = await Get.find<HomeInterface>().getHomeData();
-    if (_isDisposed) return;
+    try {
+      final result = await Get.find<HomeInterface>().getHomeData();
+      if (_isDisposed) return;
 
-    result.fold(
-      (failure) {
-        snackbarNotifier.notifyError(
-          message: failure.uiMessage.isNotEmpty
-              ? failure.uiMessage
-              : 'Failed to load home data',
-        );
-      },
-      (success) {
-        _homeData = success.data ?? HomeResponseModel.empty();
-      },
-    );
-
-    _isLoading = false;
-    _safeNotify();
+      result.fold(
+        (failure) {
+          snackbarNotifier.notifyError(
+            message: failure.uiMessage.isNotEmpty
+                ? failure.uiMessage
+                : 'Failed to load home data',
+          );
+        },
+        (success) {
+          _homeData = success.data ?? HomeResponseModel.empty();
+        },
+      );
+    } finally {
+      _isLoading = false;
+      _hasLoaded = true;
+      _safeNotify();
+    }
   }
 }

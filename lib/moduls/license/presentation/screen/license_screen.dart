@@ -78,7 +78,8 @@ class _LicenseScreenState extends State<LicenseScreen> {
       body: ValueListenableBuilder<bool>(
         valueListenable: LicenseInfoController.isLoading,
         builder: (context, isLoading, _) {
-          if (isLoading) {
+          final hasLoaded = LicenseInfoController.hasLoaded.value;
+          if (isLoading && !hasLoaded) {
             return const Center(
               child: CircularProgressIndicator(),
             );
