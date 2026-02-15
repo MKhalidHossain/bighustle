@@ -82,7 +82,8 @@ class _TicketScreenState extends State<TicketScreen> {
         child: ValueListenableBuilder<bool>(
           valueListenable: TicketController.isLoading,
           builder: (context, isLoading, _) {
-            if (isLoading) {
+            final hasLoaded = TicketController.hasLoaded.value;
+            if (isLoading && !hasLoaded) {
               return const Center(
                 child: CircularProgressIndicator(),
               );

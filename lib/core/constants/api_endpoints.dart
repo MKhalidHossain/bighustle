@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 base class ApiEndpoints {
   static const String socketUrl = _LiveHostUrls.socketUrl;
+  // static const String socketUrl = _LiveHostUrls.socketUrl;
 
   static const String baseUrl = _LiveHostUrls.baseUrl;
 
@@ -56,10 +57,12 @@ base class ApiEndpoints {
   static const String getAllNotifications = _Notification.getAllNotifications;
 
   /// ### get
-  static String getUserNotifications(String userId) => _Notification.getUserNotifications(userId);
+  static String getUserNotifications(String userId) =>
+      _Notification.getUserNotifications(userId);
 
   /// ### get
-  static String getNotificationById(String notificationId) => _Notification.getNotificationById(notificationId);
+  static String getNotificationById(String notificationId) =>
+      _Notification.getNotificationById(notificationId);
 
   /// ### post
   static const String readAllNotifications = _Notification.readAllNotifications;
@@ -70,9 +73,10 @@ base class ApiEndpoints {
 
   /// ### patch
   static const String markAllAsRead = _Notification.markAllAsRead;
-  
+
   /// ### patch
-  static String markAllNotificationsAsRead(String userId) => _Notification.markAllAsReadByUser(userId);
+  static String markAllNotificationsAsRead(String userId) =>
+      _Notification.markAllAsReadByUser(userId);
 
   // ---------------------- USER -----------------------------
 
@@ -200,23 +204,23 @@ base class ApiEndpoints {
       _Ticket.getTicketById(ticketId);
 }
 
-
-
-class _LocalHostWifi {
-  static const String socketUrl = 'https://backend-bigghustle-icpx.onrender.com';
-  //  static const String baseUrl = 'https://backend-bigghustle-icpx.onrender.com/api/v1';
-  static const String baseUrl = 'http://10.10.5.85:5000/api/v1';
-}
-class _LiveHostUrls {
-  static const String socketUrl = 'https://backend-bigghustle-icpx.onrender.com';
+class _LocalHostWifi { 
+   static const String socketUrl = 'https://backend-bigghustle-icpx.onrender.com';
    static const String baseUrl = 'https://backend-bigghustle-icpx.onrender.com/api/v1';
   //static const String baseUrl = 'http://10.10.5.85:5000/api/v1';
+
+  // static const String baseUrl = 'http://10.10.5.85:5000/api/v1';
 }
 
 
 
-
-
+class _LiveHostUrls {
+  // static const String socketUrl = 'https://backend-bigghustle-icpx.onrender.com';
+  //  static const String baseUrl = 'https://backend-bigghustle-icpx.onrender.com/api/v1';
+   static const String socketUrl = 'https://api.drivestatusllc.com';
+   static const String baseUrl = 'https://api.drivestatusllc.com/api/v1';
+  // static const String baseUrl = 'http://10.10.5.94:5000/api/v1';
+}
 
 class _Auth {
   @protected
@@ -270,10 +274,13 @@ class _Notification {
   static const String readAllNotifications =
       '$_notificationRoute/mark-all-as-read';
   static const String markAllAsRead = '$_notificationRoute/mark-all-as-read';
-  static String markAllAsReadByUser(String userId) => '$_notificationRoute/read/$userId';
+  static String markAllAsReadByUser(String userId) =>
+      '$_notificationRoute/read/$userId';
   static const String getAllNotifications = '$_notificationRoute/';
-  static String getUserNotifications(String userId) => '$_notificationRoute/$userId';
-  static String getNotificationById(String notificationId) => '$_notificationRoute/$notificationId';
+  static String getUserNotifications(String userId) =>
+      '$_notificationRoute/$userId';
+  static String getNotificationById(String notificationId) =>
+      '$_notificationRoute/$notificationId';
 }
 
 // ---------------------- USER -----------------------------
@@ -294,7 +301,7 @@ class _User {
 // ---------------------- LICENSE -----------------------------
 class _License {
   static const String _licenseRoute = '${ApiEndpoints.baseUrl}/license';
-  static const String get = '$_licenseRoute/me';
+  static const String get = '$_licenseRoute/';
   static const String create = '$_licenseRoute/create';
   static String update(String userId) => '$_licenseRoute/$userId';
 }

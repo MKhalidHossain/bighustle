@@ -68,6 +68,7 @@ class _TeenDriverPostsScreenState extends State<TeenDriverPostsScreen> {
     const primaryColor = Color(0xFF3F76F6);
     final posts = _controller.posts;
     final isLoading = _controller.isLoading;
+    final hasLoaded = _controller.hasLoaded;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
@@ -83,16 +84,18 @@ class _TeenDriverPostsScreenState extends State<TeenDriverPostsScreen> {
             color: const Color(0xFF111111),
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF111111)),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: BackButton(color: const Color(0xFF222222)),
+        
+        // IconButton(
+        //   icon: const Icon(Icons.arrow_back, color: Color(0xFF111111)),
+        //   onPressed: () => Navigator.pop(context),
+        // ),
       ),
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
-              child: isLoading && posts.isEmpty
+                child: isLoading && !hasLoaded && posts.isEmpty
                   ? const Center(child: CircularProgressIndicator())
                   : RefreshIndicator(
                       onRefresh: _controller.loadPosts,

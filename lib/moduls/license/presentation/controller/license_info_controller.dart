@@ -205,6 +205,7 @@ class LicenseInfoController {
   );
 
   static final ValueNotifier<bool> isLoading = ValueNotifier(false);
+  static final ValueNotifier<bool> hasLoaded = ValueNotifier(false);
 
   static void update(LicenseInfo info) {
     notifier.value = info;
@@ -285,6 +286,7 @@ class LicenseInfoController {
       );
     } finally {
       isLoading.value = false;
+      hasLoaded.value = true;
     }
   }
 }

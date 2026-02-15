@@ -145,7 +145,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       body: ValueListenableBuilder<bool>(
         valueListenable: ProfileInfoController.isLoading,
         builder: (context, isLoading, _) {
-          if (isLoading) {
+          if (isLoading && !profileData.hasLoaded) {
             return const Center(child: CircularProgressIndicator());
           }
           return RefreshIndicator(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bighustle/moduls/license/presentation/screen/license_screen.dart';
 import 'package:flutter_bighustle/moduls/profile/presentation/screen/profile_screen.dart';
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_screen.dart';
-
 import 'home_screen.dart';
 
 class BottomNavScreen extends StatefulWidget {
@@ -14,18 +13,20 @@ class BottomNavScreen extends StatefulWidget {
 
 class _BottomNavScreenState extends State<BottomNavScreen> {
   int _selectedIndex = 0;
+  late final List<Widget> _pages = const [
+    HomeScreen(),
+    LicenseScreen(),
+    TicketScreen(),
+    ProfileScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      const HomeScreen(),
-      const LicenseScreen(),
-      const TicketScreen(),
-      const ProfileScreen(),
-    ];
-
     return Scaffold(
-      body: pages[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),

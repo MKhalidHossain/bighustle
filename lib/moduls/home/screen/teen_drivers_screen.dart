@@ -1,9 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../core/constants/app_routes.dart';
+import '../../../core/notifiers/snackbar_notifier.dart';
+import '../../../core/services/app_pigeon/app_pigeon.dart';
+import '../controller/teen_driver_posts_controller.dart';
+import '../implement/teen_driver_experience_interface_impl.dart';
+import '../interface/teen_driver_experience_interface.dart';
+import '../model/teen_driver_experience_response_model.dart';
 
-class TeenDriversScreen extends StatelessWidget {
+class TeenDriversScreen extends StatefulWidget {
   const TeenDriversScreen({super.key});
+
+  @override
+  State<TeenDriversScreen> createState() => _TeenDriversScreenState();
+}
+
+class _TeenDriversScreenState extends State<TeenDriversScreen> {
+  TeenDriverPostsController? _postsController;
+  SnackbarNotifier? _snackbarNotifier;
+  bool _initialized = false;
+
+  void _onControllerUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   void _showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(
@@ -11,10 +33,77 @@ class TeenDriversScreen extends StatelessWidget {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  TeenDriverExperienceResponseModel? _latestPost(
+    List<TeenDriverExperienceResponseModel> posts,
+  ) {
+    if (posts.isEmpty) return null;
+    return posts.reduce((current, candidate) {
+      final currentDate = current.createdAt ??
+          current.updatedAt ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+      final candidateDate = candidate.createdAt ??
+          candidate.updatedAt ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+      return candidateDate.isAfter(currentDate) ? candidate : current;
+    });
+  }
+
+  String _formatShortDate(DateTime? date) {
+    if (date == null) return 'Recently';
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    final year = date.year.toString();
+    return '$month/$day/$year';
+  }
+
+  bool _isValidImageUrl(String? url) {
+    if (url == null || url.trim().isEmpty) return false;
+    final trimmedUrl = url.trim();
+    return trimmedUrl.startsWith('http://') ||
+        trimmedUrl.startsWith('https://');
+  }
+
+  void _openTeenDriverPosts() {
+    Navigator.pushNamed(context, AppRoutes.teenDriverPosts);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+
+    if (!Get.isRegistered<TeenDriverExperienceInterface>()) {
+      Get.put<TeenDriverExperienceInterface>(
+        TeenDriverExperienceInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
+      );
+    }
+
+    _snackbarNotifier = SnackbarNotifier(context: context);
+    _postsController = TeenDriverPostsController(
+      snackbarNotifier: _snackbarNotifier!,
+    );
+    _postsController!.addListener(_onControllerUpdate);
+    _postsController!.loadPosts();
+  }
+
+  @override
+  void dispose() {
+    if (_postsController != null) {
+      _postsController!.removeListener(_onControllerUpdate);
+      _postsController!.dispose();
+    }
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     const primaryColor = Color(0xFF3F76F6);
+    final posts = _postsController?.posts ??
+        const <TeenDriverExperienceResponseModel>[];
+    final isLoading = _postsController?.isLoading ?? false;
+    final latestPost = _latestPost(posts);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
@@ -23,17 +112,18 @@ class TeenDriversScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Teen Drivers',
+          'Drivers Posts',
           style: TextStyle(
             fontSize: (size.width * 0.055).clamp(18.0, 24.0),
             fontWeight: FontWeight.w600,
             color: const Color(0xFF111111),
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF111111)),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: BackButton(color: const Color(0xFF222222)),
+        // IconButton(
+        //   icon: const Icon(Icons.arrow_back, color: Color(0xFF111111)),
+        //   onPressed: () => Navigator.pop(context),
+        // ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -271,10 +361,7 @@ class TeenDriversScreen extends StatelessWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(
-                      context,
-                      AppRoutes.teenDriverPosts,
-                    ),
+                    onPressed: _openTeenDriverPosts,
                     child: Text(
                       'See more',
                       style: TextStyle(
@@ -286,38 +373,165 @@ class TeenDriversScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              _CardContainer(
-                size: size,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: Image.asset(
-                        'assets/images/Frame 2147228840.png',
-                        width: double.infinity,
-                        height: size.height * 0.2,
-                        fit: BoxFit.cover,
+              GestureDetector(
+                onTap: _openTeenDriverPosts,
+                child: _CardContainer(
+                  size: size,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Teen driver posts',
+                            style: TextStyle(
+                              fontSize: (size.width * 0.045).clamp(14.0, 18.0),
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF222222),
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 16,
+                            color: primaryColor,
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: size.height * 0.015),
-                    Text(
-                      'Mike_Graham',
-                      style: TextStyle(
-                        fontSize: (size.width * 0.045).clamp(14.0, 18.0),
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF222222),
-                      ),
-                    ),
-                    SizedBox(height: size.height * 0.008),
-                    Text(
-                      'First Snowy Ride Experience',
-                      style: TextStyle(
-                        fontSize: (size.width * 0.042).clamp(13.0, 17.0),
-                        color: const Color(0xFF555555),
-                      ),
-                    ),
-                  ],
+                      SizedBox(height: size.height * 0.012),
+                      if (isLoading && posts.isEmpty)
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            SizedBox(width: size.width * 0.03),
+                            Text(
+                              'Loading posts...',
+                              style: TextStyle(
+                                fontSize:
+                                    (size.width * 0.04).clamp(12.0, 16.0),
+                                color: const Color(0xFF555555),
+                              ),
+                            ),
+                          ],
+                        )
+                      else if (latestPost == null)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'No posts yet',
+                              style: TextStyle(
+                                fontSize:
+                                    (size.width * 0.043).clamp(13.0, 17.0),
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF222222),
+                              ),
+                            ),
+                            SizedBox(height: size.height * 0.008),
+                            Text(
+                              'Tap to view all posts',
+                              style: TextStyle(
+                                fontSize:
+                                    (size.width * 0.04).clamp(12.0, 16.0),
+                                color: const Color(0xFF555555),
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Total posts: ${posts.length}',
+                              style: TextStyle(
+                                fontSize:
+                                    (size.width * 0.04).clamp(12.0, 16.0),
+                                color: const Color(0xFF555555),
+                              ),
+                            ),
+                            SizedBox(height: size.height * 0.01),
+                            if (_isValidImageUrl(latestPost!.mediaUrl))
+                              Container(
+                                height: size.height * 0.18,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEDEDED),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: Image.network(
+                                    latestPost.mediaUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Center(
+                                        child: Icon(
+                                          Icons.image_outlined,
+                                          color: Color(0xFF9A9A9A),
+                                          size: 36,
+                                        ),
+                                      );
+                                    },
+                                    loadingBuilder:
+                                        (context, child, progress) {
+                                      if (progress == null) return child;
+                                      return const Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            if (_isValidImageUrl(latestPost.mediaUrl))
+                              SizedBox(height: size.height * 0.012),
+                            Text(
+                              latestPost.title.trim().isNotEmpty
+                                  ? latestPost.title
+                                  : 'Latest post',
+                              style: TextStyle(
+                                fontSize:
+                                    (size.width * 0.045).clamp(14.0, 18.0),
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF222222),
+                              ),
+                            ),
+                            SizedBox(height: size.height * 0.006),
+                            Text(
+                              latestPost.description.trim().isNotEmpty
+                                  ? latestPost.description
+                                  : 'Tap to view details',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize:
+                                    (size.width * 0.04).clamp(12.0, 16.0),
+                                color: const Color(0xFF555555),
+                              ),
+                            ),
+                            SizedBox(height: size.height * 0.01),
+                            Text(
+                              '${latestPost.authorName.trim().isNotEmpty ? latestPost.authorName : 'Unknown'} • ${_formatShortDate(latestPost.createdAt ?? latestPost.updatedAt)}',
+                              style: TextStyle(
+                                fontSize:
+                                    (size.width * 0.04).clamp(12.0, 16.0),
+                                color: const Color(0xFF555555),
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
               SizedBox(height: size.height * 0.03),

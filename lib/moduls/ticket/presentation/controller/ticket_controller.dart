@@ -9,6 +9,7 @@ class TicketController {
   static final ValueNotifier<List<TicketModel>> unpaidTickets = ValueNotifier<List<TicketModel>>([]);
   static final ValueNotifier<List<TicketModel>> paidTickets = ValueNotifier<List<TicketModel>>([]);
   static final ValueNotifier<bool> isLoading = ValueNotifier(false);
+  static final ValueNotifier<bool> hasLoaded = ValueNotifier(false);
 
   static Future<void> loadTickets({SnackbarNotifier? snackbarNotifier}) async {
     try {
@@ -52,6 +53,7 @@ class TicketController {
       );
     } finally {
       isLoading.value = false;
+      hasLoaded.value = true;
     }
   }
 }

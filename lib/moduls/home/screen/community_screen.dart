@@ -146,6 +146,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
     final canSubmit =
         _initialized ? _controller.canSubmit && hasPostId : false;
     final isLoading = _initialized ? _controller.isLoading : false;
+    final hasLoaded = _initialized ? _controller.hasLoaded : false;
     final comments = _initialized ? _controller.comments : [];
     final likesCount = _initialized ? _controller.likesCount : 0;
     final isLiked = _initialized ? _controller.isLiked : false;
@@ -164,7 +165,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
               ),
               child: Row(
                 children: [
-                  SizedBox(width: size.width * 0.08),
+                  // SizedBox(width: size.width * 0.08),
+                  BackButton(color: const Color(0xFF222222)),
                   Expanded(
                     child: Center(
                       child: Text(
@@ -186,7 +188,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
               ),
             ),
             Expanded(
-              child: isLoading && comments.isEmpty
+              child: isLoading && !hasLoaded && comments.isEmpty
                   ? const Center(child: CircularProgressIndicator())
                   : ListView.separated(
                       controller: _scrollController,
