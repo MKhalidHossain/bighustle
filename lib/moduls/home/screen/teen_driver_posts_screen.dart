@@ -83,10 +83,12 @@ class _TeenDriverPostsScreenState extends State<TeenDriverPostsScreen> {
             color: const Color(0xFF111111),
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF111111)),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: BackButton(color: const Color(0xFF222222)),
+        
+        // IconButton(
+        //   icon: const Icon(Icons.arrow_back, color: Color(0xFF111111)),
+        //   onPressed: () => Navigator.pop(context),
+        // ),
       ),
       body: SafeArea(
         child: Column(

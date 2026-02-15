@@ -164,7 +164,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
               ),
               child: Row(
                 children: [
-                  SizedBox(width: size.width * 0.08),
+                  // SizedBox(width: size.width * 0.08),
+                  BackButton(color: const Color(0xFF222222)),
                   Expanded(
                     child: Center(
                       child: Text(

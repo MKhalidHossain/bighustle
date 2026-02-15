@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bighustle/moduls/license/presentation/screen/license_screen.dart';
 import 'package:flutter_bighustle/moduls/profile/presentation/screen/profile_screen.dart';
 import 'package:flutter_bighustle/moduls/ticket/presentation/screen/ticket_screen.dart';
-
 import 'home_screen.dart';
 
 class BottomNavScreen extends StatefulWidget {
