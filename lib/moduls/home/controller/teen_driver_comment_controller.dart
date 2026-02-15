@@ -12,18 +12,23 @@ class TeenDriverCommentController extends ChangeNotifier {
 
   TeenDriverCommentController({required this.snackbarNotifier});
 
+  static final Map<String, _CommunityCache> _cacheByPostId = {};
+
   String _text = '';
   bool _isSubmitting = false;
   bool _isLoading = false;
+  bool _hasLoaded = false;
   bool _isLiking = false;
   bool _isLiked = false;
   int _likesCount = 0;
   String _likeUserName = '';
+  String _currentPostId = '';
   final List<TeenDriverCommentResponseModel> _comments = [];
 
   String get text => _text;
   bool get isSubmitting => _isSubmitting;
   bool get isLoading => _isLoading;
+  bool get hasLoaded => _hasLoaded;
   bool get isLiking => _isLiking;
   bool get isLiked => _isLiked;
   int get likesCount => _likesCount;
@@ -40,9 +45,18 @@ class TeenDriverCommentController extends ChangeNotifier {
   }
 
   Future<void> loadComments({required String postId}) async {
-    if (postId.trim().isEmpty) {
+    final trimmedPostId = postId.trim();
+    if (trimmedPostId.isEmpty) {
       snackbarNotifier.notifyError(message: 'Post id is missing.');
       return;
+    }
+
+    _currentPostId = trimmedPostId;
+    final cached = _cacheByPostId[trimmedPostId];
+    if (cached != null) {
+      _applyCache(cached);
+      _hasLoaded = true;
+      notifyListeners();
     }
 
     _isLoading = true;
@@ -64,7 +78,7 @@ class TeenDriverCommentController extends ChangeNotifier {
         final posts = success.data ?? [];
         List<TeenDriverCommentResponseModel> postComments = [];
         for (final post in posts) {
-          if (post.id == postId.trim()) {
+          if (post.id == trimmedPostId) {
             postComments = post.comments;
             _likesCount = post.likesCount;
             if (currentUser.id.isNotEmpty &&
@@ -74,6 +88,7 @@ class TeenDriverCommentController extends ChangeNotifier {
                   currentUser.name.isNotEmpty ? currentUser.name : 'You';
             } else {
               _isLiked = false;
+              _likeUserName = '';
             }
             break;
           }
@@ -81,10 +96,17 @@ class TeenDriverCommentController extends ChangeNotifier {
         _comments
           ..clear()
           ..addAll(postComments);
+        _cacheByPostId[trimmedPostId] = _CommunityCache(
+          comments: List<TeenDriverCommentResponseModel>.from(_comments),
+          likesCount: _likesCount,
+          isLiked: _isLiked,
+          likeUserName: _likeUserName,
+        );
       },
     );
 
     _isLoading = false;
+    _hasLoaded = true;
     notifyListeners();
   }
 
@@ -123,6 +145,7 @@ class TeenDriverCommentController extends ChangeNotifier {
 
     if (createdComment != null) {
       _comments.add(createdComment!);
+      _cacheCurrentState();
     }
     _isSubmitting = false;
     notifyListeners();
@@ -161,6 +184,7 @@ class TeenDriverCommentController extends ChangeNotifier {
         _isLiked = true;
         _likeUserName =
             currentUser.name.isNotEmpty ? currentUser.name : 'You';
+        _cacheCurrentState();
       },
     );
 
@@ -193,6 +217,27 @@ class TeenDriverCommentController extends ChangeNotifier {
     } catch (_) {}
     return const _UserSnapshot(id: '', name: '');
   }
+
+  void _applyCache(_CommunityCache cache) {
+    _comments
+      ..clear()
+      ..addAll(cache.comments);
+    _likesCount = cache.likesCount;
+    _isLiked = cache.isLiked;
+    _likeUserName = cache.likeUserName;
+  }
+
+  void _cacheCurrentState() {
+    if (_currentPostId.isEmpty) {
+      return;
+    }
+    _cacheByPostId[_currentPostId] = _CommunityCache(
+      comments: List<TeenDriverCommentResponseModel>.from(_comments),
+      likesCount: _likesCount,
+      isLiked: _isLiked,
+      likeUserName: _likeUserName,
+    );
+  }
 }
 
 class _UserSnapshot {
@@ -200,4 +245,18 @@ class _UserSnapshot {
   final String name;
 
   const _UserSnapshot({required this.id, required this.name});
+}
+
+class _CommunityCache {
+  final List<TeenDriverCommentResponseModel> comments;
+  final int likesCount;
+  final bool isLiked;
+  final String likeUserName;
+
+  const _CommunityCache({
+    required this.comments,
+    required this.likesCount,
+    required this.isLiked,
+    required this.likeUserName,
+  });
 }
