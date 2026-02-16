@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bighustle/core/api_handler/failure.dart';
 import 'package:flutter_bighustle/core/api_handler/success.dart';
 import 'package:flutter_bighustle/core/constants/api_endpoints.dart';
+import 'package:flutter_bighustle/core/constants/app_routes.dart';
 import 'package:flutter_bighustle/core/services/app_pigeon/app_pigeon.dart';
 import '../interface/auth_interface.dart';
 import '../model/forget_password_request_model.dart';
@@ -182,6 +183,7 @@ final class AuthInterfaceImpl extends AuthInterface {
       ]);
 
       if (accessToken.isEmpty) {
+        AppRoutes.login;
         return Left(
           DataCRUDFailure(
             failure: Failure.dioFailure,
