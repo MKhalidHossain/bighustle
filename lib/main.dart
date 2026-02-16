@@ -49,7 +49,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: AppRoutes.splash,
       onGenerateRoute: (settings) {
-        switch (settings.name) {
+
+          switch (settings.name) {
           case AppRoutes.splash:
             return MaterialPageRoute(builder: (_) => const SplashScreen());
           case AppRoutes.login:

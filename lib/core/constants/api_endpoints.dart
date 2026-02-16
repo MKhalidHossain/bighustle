@@ -342,7 +342,6 @@ class _Ticket {
     }
     return baseUrl;
   }
-
   static String getTicketById(String ticketId) => '$_ticketRoute/$ticketId';
 }
 
