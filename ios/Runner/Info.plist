@@ -26,6 +26,29 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+
+	<!-- ✅ CAMERA - Required for license photo capture -->
+	<key>NSCameraUsageDescription</key>
+	<string>Bighustle needs camera access to capture your driver license photo and profile picture.</string>
+
+	<!-- ✅ PHOTO LIBRARY READ - Required for uploading license/profile images -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Bighustle needs access to your photo library to upload your driver license and profile photo.</string>
+
+	<!-- ✅ PHOTO LIBRARY ADD - Required if saving images to library -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Bighustle needs permission to save photos to your library.</string>
+
+	<!-- ✅ FACE ID - Add if your app uses biometric authentication -->
+	<!-- <key>NSFaceIDUsageDescription</key> -->
+	<!-- <string>Bighustle uses Face ID for secure login.</string> -->
+
+	<!-- ✅ NOTIFICATIONS - Required for license alerts and ticket notifications -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
