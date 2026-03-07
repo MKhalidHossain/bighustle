@@ -11,7 +11,6 @@ import 'package:flutter_bighustle/moduls/auth/presentation/screen/signup_screen.
 import 'package:flutter_bighustle/moduls/auth/presentation/widget/auth_ui.dart';
 import 'package:flutter_bighustle/moduls/home/screen/bottom_nav_screen.dart';
 import 'package:flutter_bighustle/moduls/home/screen/add_teen_driver_experience_screen.dart';
-import 'package:flutter_bighustle/moduls/home/screen/community_screen.dart';
 import 'package:flutter_bighustle/moduls/home/screen/learning_center_screen.dart';
 import 'package:flutter_bighustle/moduls/home/screen/learning_video_screen.dart';
 import 'package:flutter_bighustle/moduls/home/screen/teen_driver_posts_screen.dart';
