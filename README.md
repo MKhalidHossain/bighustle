@@ -76,9 +76,5 @@ assets/
    ```bash
    flutter run
    ```
-
-flutter test
-```
-
-## Security Notes
+   tes
 Keep API keys, tokens, and production credentials out of the repo. Use secure storage and environment-specific configuration for sensitive values.
