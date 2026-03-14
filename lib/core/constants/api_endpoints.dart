@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 
 base class ApiEndpoints {
-  static const String socketUrl = _LiveHostUrls.socketUrl;
+  static const String socketUrl = _LocalHostWifi.socketUrl;
   // static const String socketUrl = _LiveHostUrls.socketUrl;
 
-  static const String baseUrl = _LiveHostUrls.baseUrl;
+  static const String baseUrl = _LocalHostWifi.baseUrl;
 
   /// ### post
   static const String login = _Auth.login;
@@ -208,6 +208,16 @@ base class ApiEndpoints {
   /// ### get
   static String getTicketById(String ticketId) =>
       _Ticket.getTicketById(ticketId);
+
+  // ---------------------- PLAN -----------------------------
+  static const String getPlans = _Plan.getPlans;
+  static const String createPlan = _Plan.createPlan;
+  static String getPlanById(String planId) => _Plan.getPlanById(planId);
+  static String updatePlan(String planId) => _Plan.updatePlan(planId);
+  static String deletePlan(String planId) => _Plan.deletePlan(planId);
+  static const String createPlanPayment = _Plan.createPlanPayment;
+  static String confirmPlanPayment(String paymentId) =>
+      _Plan.confirmPlanPayment(paymentId);
 }
 
 class _LocalHostWifi {
@@ -349,6 +359,19 @@ class _Ticket {
   }
 
   static String getTicketById(String ticketId) => '$_ticketRoute/$ticketId';
+}
+
+// ---------------------- PLAN -----------------------------
+class _Plan {
+  static const String _planRoute = '${ApiEndpoints.baseUrl}/plans';
+  static const String getPlans = _planRoute;
+  static const String createPlan = _planRoute;
+  static String getPlanById(String planId) => '$_planRoute/$planId';
+  static String updatePlan(String planId) => '$_planRoute/$planId';
+  static String deletePlan(String planId) => '$_planRoute/$planId';
+  static const String createPlanPayment = '$_planRoute/payments';
+  static String confirmPlanPayment(String paymentId) =>
+      '$_planRoute/payments/$paymentId/confirm';
 }
 
 // ---------------------- RIDE -----------------------------
