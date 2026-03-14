@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:get/get.dart';
-
-import '../../../../core/constants/stripe_config.dart';
 import '../../../../core/notifiers/snackbar_notifier.dart';
-import '../../../../core/services/app_pigeon/app_pigeon.dart';
-import '../../implement/plan_interface_impl.dart';
-import '../../interface/plan_interface.dart';
 import '../../model/plan_model.dart';
+import '../../controller/subscribe_payment_controller.dart';
 
 class SubscribeScreen extends StatefulWidget {
   const SubscribeScreen({super.key});
@@ -23,15 +17,14 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
   static const Color _accentOrange = Color(0xFFF5A524);
 
   late final SnackbarNotifier _snackbarNotifier;
-  late final PlanInterface _planInterface;
-
+  late final SubscribePaymentController _controller;
   bool _initialized = false;
-  bool _isLoadingPlans = false;
-  bool _isSubmitting = false;
 
-  List<PlanModel> _plans = [];
-  PlanModel? _currentPlan;
-  PlanModel? _selectedPlan;
+  @override
+  void initState() {
+    super.initState();
+    _controller = SubscribePaymentController();
+  }
 
   @override
   void didChangeDependencies() {
@@ -39,62 +32,15 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
     if (!_initialized) {
       _initialized = true;
       _snackbarNotifier = SnackbarNotifier(context: context);
-      if (!Get.isRegistered<PlanInterface>()) {
-        Get.put<PlanInterface>(
-          PlanInterfaceImpl(appPigeon: Get.find<AppPigeon>()),
-        );
-      }
-      _planInterface = Get.find<PlanInterface>();
-      _loadPlans();
+      _controller.init();
+      _controller.loadPlans(snackbarNotifier: _snackbarNotifier);
     }
   }
 
-  Future<void> _loadPlans() async {
-    setState(() => _isLoadingPlans = true);
-    final result = await _planInterface.getPlans();
-    if (!mounted) return;
-
-    result.fold(
-      (failure) {
-        _snackbarNotifier.notifyError(
-          message: failure.uiMessage.isNotEmpty
-              ? failure.uiMessage
-              : 'Failed to load plans',
-        );
-        setState(() {
-          _plans = [];
-          _currentPlan = null;
-          _selectedPlan = null;
-          _isLoadingPlans = false;
-        });
-      },
-      (success) {
-        final plans = success.data ?? <PlanModel>[];
-        PlanModel? current;
-        for (final plan in plans) {
-          if (plan.price == 0) {
-            current = plan;
-            break;
-          }
-        }
-        current ??= plans.isNotEmpty ? plans.first : null;
-
-        PlanModel? selected;
-        if (plans.isNotEmpty) {
-          selected = plans.firstWhere(
-            (plan) => plan.id != current?.id && plan.price > 0,
-            orElse: () => current ?? plans.first,
-          );
-        }
-
-        setState(() {
-          _plans = plans;
-          _currentPlan = current;
-          _selectedPlan = selected;
-          _isLoadingPlans = false;
-        });
-      },
-    );
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   String _currencySymbol(String currency) {
@@ -114,113 +60,25 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
   bool _isPopularPlan(PlanModel plan) {
     final name = plan.name.toLowerCase();
     if (name.contains('pro')) return true;
-    final maxPrice = _plans.isNotEmpty
-        ? _plans.map((item) => item.price).reduce((a, b) => a > b ? a : b)
+    final plans = _controller.plans;
+    final maxPrice = plans.isNotEmpty
+        ? plans.map((item) => item.price).reduce((a, b) => a > b ? a : b)
         : plan.price;
     return plan.price == maxPrice && plan.price > 0;
   }
 
-  void _selectPlan(PlanModel plan) {
-    if (plan.id == _currentPlan?.id) return;
-    setState(() {
-      _selectedPlan = plan;
-    });
-  }
+  void _selectPlan(PlanModel plan) => _controller.selectPlan(plan);
 
   Future<void> _submitSubscription() async {
-    if (_selectedPlan == null) {
-      _snackbarNotifier.notifyError(message: 'Please select a plan.');
-      return;
-    }
-
-    if (_selectedPlan?.id == _currentPlan?.id) {
-      _snackbarNotifier.notify(message: 'You are already on this plan.');
-      return;
-    }
-
-    if (StripeConfig.publishableKey.contains('replace_with_your_key')) {
-      _snackbarNotifier.notifyError(
-        message: 'Stripe publishable key is not set.',
-      );
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-
-    final createResult = await _planInterface.createPlanPayment(
-      planId: _selectedPlan!.id,
-      provider: 'stripe',
+    final success = await _controller.submitSubscription(
+      snackbarNotifier: _snackbarNotifier,
     );
-
-    if (!mounted) return;
-
-    final paymentData = createResult.fold((failure) {
-      _snackbarNotifier.notifyError(
-        message: failure.uiMessage.isNotEmpty
-            ? failure.uiMessage
-            : 'Failed to create payment',
-      );
-      return null;
-    }, (success) => success.data);
-
-    if (paymentData == null || paymentData.clientSecret == null) {
-      setState(() => _isSubmitting = false);
-      _snackbarNotifier.notifyError(
-        message: 'Stripe client secret missing from backend response.',
-      );
-      return;
-    }
-
-    try {
-      await Stripe.instance.initPaymentSheet(
-        paymentSheetParameters: SetupPaymentSheetParameters(
-          paymentIntentClientSecret: paymentData.clientSecret!,
-          merchantDisplayName: StripeConfig.merchantName,
-          style: ThemeMode.light,
-        ),
-      );
-
-      await Stripe.instance.presentPaymentSheet();
-
-      final confirmResult = await _planInterface.confirmPlanPayment(
-        paymentId: paymentData.paymentId,
-        providerPaymentId: paymentData.providerPaymentId,
-      );
-
-      if (!mounted) return;
-
-      confirmResult.fold(
-        (failure) {
-          _snackbarNotifier.notifyError(
-            message: failure.uiMessage.isNotEmpty
-                ? failure.uiMessage
-                : 'Payment confirmation failed',
-          );
-        },
-        (success) {
-          _snackbarNotifier.notifySuccess(message: success.message);
-          setState(() {
-            _currentPlan = _selectedPlan;
-          });
-          _showSuccessDialog();
-        },
-      );
-    } on StripeException catch (e) {
-      _snackbarNotifier.notifyError(
-        message: e.error.message ?? 'Stripe payment cancelled',
-      );
-    } catch (_) {
-      _snackbarNotifier.notifyError(message: 'Stripe payment failed');
-    }
-
-    if (mounted) {
-      setState(() => _isSubmitting = false);
-    }
+    if (mounted && success) _showSuccessDialog();
   }
 
   void _showSuccessDialog() {
-    if (_selectedPlan == null) return;
-    final plan = _selectedPlan!;
+    final plan = _controller.selectedPlan;
+    if (plan == null) return;
     final priceText =
         '${_currencySymbol(plan.currency)}${plan.price.toStringAsFixed(2)}';
     showDialog<void>(
@@ -416,7 +274,9 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                   )
                 : (isSelected
                       ? ElevatedButton(
-                          onPressed: _isSubmitting ? null : _submitSubscription,
+                          onPressed: _controller.isSubmitting
+                              ? null
+                              : _submitSubscription,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _borderBlue,
                             foregroundColor: Colors.white,
@@ -424,7 +284,7 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          child: _isSubmitting
+                          child: _controller.isSubmitting
                               ? const SizedBox(
                                   height: 18,
                                   width: 18,
@@ -456,11 +316,6 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hasPlans = _plans.isNotEmpty;
-    final plansToShow = hasPlans
-        ? _plans.where((plan) => plan.id != _currentPlan?.id).toList()
-        : <PlanModel>[];
-
     return Scaffold(
       backgroundColor: _background,
       appBar: AppBar(
@@ -473,58 +328,78 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
           style: TextStyle(color: _titleBlue, fontWeight: FontWeight.w600),
         ),
       ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _loadPlans,
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            children: [
-              if (_isLoadingPlans)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (!hasPlans)
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'No plans available right now.',
-                        style: TextStyle(fontSize: 15),
+      body: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) {
+          final hasPlans = _controller.hasPlans;
+          final currentPlan = _controller.currentPlan;
+          final selectedPlan = _controller.selectedPlan;
+          final plansToShow = hasPlans
+              ? _controller.plans
+                    .where((plan) => plan.id != currentPlan?.id)
+                    .toList()
+              : <PlanModel>[];
+
+          return SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () =>
+                  _controller.loadPlans(snackbarNotifier: _snackbarNotifier),
+              child: ListView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                children: [
+                  if (_controller.isLoadingPlans)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (!hasPlans)
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
                       ),
-                      const SizedBox(height: 12),
-                      OutlinedButton(
-                        onPressed: _loadPlans,
-                        child: const Text('Retry'),
+                      child: Column(
+                        children: [
+                          const Text(
+                            'No plans available right now.',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                          const SizedBox(height: 12),
+                          OutlinedButton(
+                            onPressed: () => _controller.loadPlans(
+                              snackbarNotifier: _snackbarNotifier,
+                            ),
+                            child: const Text('Retry'),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
-              else ...[
-                if (_currentPlan != null)
-                  _buildPlanCard(
-                    plan: _currentPlan!,
-                    isCurrent: true,
-                    isSelected: false,
-                  ),
-                for (final plan in plansToShow)
-                  GestureDetector(
-                    onTap: () => _selectPlan(plan),
-                    child: _buildPlanCard(
-                      plan: plan,
-                      isCurrent: false,
-                      isSelected: plan.id == _selectedPlan?.id,
-                    ),
-                  ),
-              ],
-            ],
-          ),
-        ),
+                    )
+                  else ...[
+                    if (currentPlan != null)
+                      _buildPlanCard(
+                        plan: currentPlan,
+                        isCurrent: true,
+                        isSelected: false,
+                      ),
+                    for (final plan in plansToShow)
+                      GestureDetector(
+                        onTap: () => _selectPlan(plan),
+                        child: _buildPlanCard(
+                          plan: plan,
+                          isCurrent: false,
+                          isSelected: plan.id == selectedPlan?.id,
+                        ),
+                      ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
