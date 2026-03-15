@@ -12,7 +12,7 @@ class SubscribeScreen extends StatefulWidget {
 
 class _SubscribeScreenState extends State<SubscribeScreen> {
   static const Color _background = Color(0xFFF2F2F2);
-  static const Color _borderBlue =  Color(0xFF1976F3);
+  static const Color _borderBlue = Color(0xFF1976F3);
   static const Color _titleBlue = Colors.black;
   static const Color _accentOrange = Color(0xFFF5A524);
 
